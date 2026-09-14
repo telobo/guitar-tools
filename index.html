@@ -141,7 +141,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 18px;
+    gap: 16px;
     min-height: 0;
     width: 100%;
   }
@@ -170,8 +170,8 @@
     border-radius: 0 0 3px 3px;
     z-index: 2;
   }
-  .wkey.lit { background: #000; box-shadow: inset 0 0 0 2px #fff; }
-  .bkey.lit { background: #fff; box-shadow: inset 0 0 0 2px #000; }
+  .wkey.lit, .wkey.press { background: #000; box-shadow: inset 0 0 0 2px #fff; }
+  .bkey.lit, .bkey.press { background: #fff; box-shadow: inset 0 0 0 2px #000; }
   .octLabel {
     position: absolute;
     transform: translateX(-50%);
@@ -180,6 +180,21 @@
     pointer-events: none;
     display: none;
     line-height: 1;
+  }
+  .octRow {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    width: 100%;
+    max-width: 440px;
+    margin: 10px auto 0;
+  }
+  .octRow .lbl { font-size: 12px; margin-right: 4px; }
+  .octBtn {
+    flex: 1;
+    min-height: 42px;
+    font-size: 15px;
+    border-radius: 10px;
   }
 
   .noteBox {
@@ -192,17 +207,17 @@
   .noteBox.ok { background: #fff; color: #000; }
   .stringLabel { font-size: 14px; min-height: 18px; }
   .noteName {
-    font-size: clamp(44px, 16vw, 80px);
+    font-size: clamp(40px, 14vw, 72px);
     font-weight: 200;
     line-height: 1.05;
     font-variant-numeric: tabular-nums;
   }
   .centsText { font-size: 15px; font-variant-numeric: tabular-nums; }
 
-  .meter { position: relative; height: 86px; width: min(320px, 82vw); }
+  .meter { position: relative; height: 80px; width: min(320px, 82vw); }
   .needle {
     position: absolute; left: 50%; bottom: 0;
-    width: 2px; height: 72px; margin-left: -1px;
+    width: 2px; height: 68px; margin-left: -1px;
     background: #fff;
     transform-origin: bottom center;
     transition: transform 0.08s linear;
@@ -258,6 +273,7 @@
   <div class="tuner-top">
     <div class="piano-wrap">
       <div class="piano" id="piano"><div class="octLabel" id="octLabel"></div></div>
+      <div class="octRow" id="octRow"><span class="lbl">オクターブ</span></div>
     </div>
     <div class="noteBox" id="noteBox">
       <div class="stringLabel" id="stringLabel"></div>
@@ -328,7 +344,10 @@ const tabs = { metro: document.getElementById("tab-metro"), tuner: document.getE
 function showTab(name) {
   if (!pages[name]) name = "metro";
   if (name !== "metro" && playing) stopMetro();
-  if (name !== "tuner" && micOn) stopTuner();
+  if (name !== "tuner") {
+    if (micOn) stopTuner();
+    stopAllVoices();
+  }
   for (const key in pages) {
     pages[key].classList.toggle("active", key === name);
     tabs[key].classList.toggle("active", key === name);
@@ -532,11 +551,14 @@ const GUITAR_TARGETS = [40, 45, 50, 55, 59, 64]; /* E2 A2 D3 G3 B3 E4 */
 const BASS_TARGETS = [28, 33, 38, 43];           /* E1 A1 D2 G2 */
 const IN_TUNE_CENTS = 5;
 const WHITE_PC = [0, 2, 4, 5, 7, 9, 11];
+const OCT_MIN = 1, OCT_MAX = 6;
 
 let tunerMode = parseInt(store.get("gt.tmode", "0"), 10);
 if (![0, 1, 2].includes(tunerMode)) tunerMode = 0;
 let refPitch = parseInt(store.get("gt.ref", "440"), 10);
 if (refPitch !== 442) refPitch = 440;
+let pianoOct = parseInt(store.get("gt.poct", "4"), 10);
+if (isNaN(pianoOct) || pianoOct < OCT_MIN || pianoOct > OCT_MAX) pianoOct = 4;
 
 let micOn = false;
 let stream = null;
@@ -559,6 +581,45 @@ const refBtn = document.getElementById("refBtn");
 const tunerBtn = document.getElementById("tunerBtn");
 const tunerHint = document.getElementById("tunerHint");
 
+/* ---- 鍵盤タップ発音(押している間サイン波) ---- */
+const voices = {};
+function noteFreq(pc, oct) {
+  const midi = (oct + 1) * 12 + pc;
+  return refPitch * Math.pow(2, (midi - 69) / 12);
+}
+async function keyDown(e, pc) {
+  e.preventDefault();
+  await ensureAudio();
+  if (voices[e.pointerId]) endVoice(e.pointerId);
+  const osc = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  osc.type = "sine";
+  osc.frequency.value = noteFreq(pc, pianoOct);
+  const t = audioCtx.currentTime;
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(0.25, t + 0.02);
+  osc.connect(g).connect(audioCtx.destination);
+  osc.start();
+  voices[e.pointerId] = { osc: osc, g: g, el: keyEls[pc] };
+  keyEls[pc].classList.add("press");
+  try { e.target.setPointerCapture(e.pointerId); } catch (err) {}
+}
+function keyUp(e) { endVoice(e.pointerId); }
+function endVoice(id) {
+  const v = voices[id];
+  if (!v) return;
+  delete voices[id];
+  const t = audioCtx.currentTime;
+  v.g.gain.cancelScheduledValues(t);
+  v.g.gain.setValueAtTime(Math.max(v.g.gain.value, 0.0001), t);
+  v.g.gain.exponentialRampToValueAtTime(0.0001, t + 0.08);
+  v.osc.stop(t + 0.1);
+  v.el.classList.remove("press");
+}
+function stopAllVoices() {
+  for (const id in voices) endVoice(id);
+}
+
 /* ---- ピアノ鍵盤(1オクターブ C〜B)の生成 ---- */
 const keyEls = {};
 const keyCenters = {};
@@ -567,26 +628,52 @@ const keyCenters = {};
   const wk = 100 / 7;
   let wIndex = 0;
   for (let pc = 0; pc < 12; pc++) {
-    if (WHITE_PC.includes(pc)) {
-      const el = document.createElement("div");
+    const isWhite = WHITE_PC.includes(pc);
+    const el = document.createElement("div");
+    if (isWhite) {
       el.className = "wkey";
       el.style.left = (wIndex * wk) + "%";
       el.style.width = wk + "%";
-      piano.appendChild(el);
-      keyEls[pc] = el;
       keyCenters[pc] = (wIndex + 0.5) * wk;
       wIndex++;
     } else {
-      const el = document.createElement("div");
       el.className = "bkey";
       el.style.left = (wIndex * wk - wk * 0.3) + "%";
       el.style.width = (wk * 0.6) + "%";
-      piano.appendChild(el);
-      keyEls[pc] = el;
       keyCenters[pc] = wIndex * wk;
     }
+    piano.appendChild(el);
+    keyEls[pc] = el;
+    el.addEventListener("pointerdown", (e) => keyDown(e, pc));
+    el.addEventListener("pointerup", keyUp);
+    el.addEventListener("pointercancel", keyUp);
+    el.addEventListener("lostpointercapture", keyUp);
+    el.addEventListener("contextmenu", (e) => e.preventDefault());
   }
 })();
+
+/* ---- オクターブ切替(1〜6) ---- */
+const octBtns = {};
+(function buildOctRow() {
+  const row = document.getElementById("octRow");
+  for (let o = OCT_MIN; o <= OCT_MAX; o++) {
+    const b = document.createElement("button");
+    b.className = "octBtn";
+    b.textContent = o;
+    b.addEventListener("click", () => {
+      pianoOct = o;
+      store.set("gt.poct", o);
+      renderOctRow();
+    });
+    row.appendChild(b);
+    octBtns[o] = b;
+  }
+})();
+function renderOctRow() {
+  for (let o = OCT_MIN; o <= OCT_MAX; o++) {
+    octBtns[o].classList.toggle("on", o === pianoOct);
+  }
+}
 
 let litKey = null;
 function highlightKey(pc, octave) {
@@ -773,6 +860,7 @@ document.addEventListener("visibilitychange", () => {
   if (document.hidden) {
     if (playing) stopMetro();
     if (micOn) stopTuner();
+    stopAllVoices();
   }
 });
 
@@ -782,6 +870,7 @@ beatBtn.textContent = beatsPerBar + "拍子";
 renderOff();
 renderMode();
 renderRef();
+renderOctRow();
 showTab(store.get("gt.tab", "metro"));
 </script>
 </body>
