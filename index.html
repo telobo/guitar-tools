@@ -276,7 +276,7 @@
       <button class="step" id="minusBtn" aria-label="テンポを下げる">−</button>
       <button class="step" id="plusBtn" aria-label="テンポを上げる">+</button>
     </div>
-    <button class="main" id="startBtn">スタート</button>
+    <button class="main" id="startBtn">▶ スタート</button>
   </div>
 </div>
 
@@ -351,8 +351,8 @@
     <div class="chordTones only-scale" id="scaleTones"></div>
     <div class="chips wrapchips only-scale" id="scDia"><span class="clabel">ダイアトニック</span></div>
     <div class="dictrow only-rev">
-      <button id="revClear">クリア</button>
       <button id="revToMemo">メモへ追加</button>
+      <button id="revClear">クリア</button>
     </div>
     <div class="chordTones only-rev" id="revSelText">指板か鍵盤をタップして音を選択</div>
     <div class="chips wrapchips only-rev" id="revResults"><span class="clabel">候補</span></div>
@@ -378,9 +378,9 @@
     </div>
     <div class="dictrow">
       <button id="tunBtn" style="flex:2">スタンダード</button>
-      <button id="capoMinus">−</button>
+      <button class="tstep" id="capoMinus">−</button>
       <div class="vlabel" id="capoVal">カポ 0</div>
-      <button id="capoPlus">＋</button>
+      <button class="tstep" id="capoPlus">＋</button>
     </div>
     <div class="dictrow">
       <button id="skPlayBtn">▶ 再生</button>
@@ -483,7 +483,7 @@
       <div class="prFbk" id="rcSub"></div>
       <div class="prFbk" id="rcFbk"></div>
       <div class="dictrow">
-        <button id="rcStart">スタート</button>
+        <button id="rcStart">▶ スタート</button>
         <button id="rcReset">リセット</button>
       </div>
       <button class="rcPad" id="rcPad">TAP</button>
@@ -494,7 +494,7 @@
       <div class="etGrid" id="etGrid"></div>
       <div class="statRow" id="etStats"></div>
       <div class="dictrow">
-        <button id="etPlay">出題</button>
+        <button id="etPlay">▶ 出題</button>
         <button id="etPass">パス</button>
         <button id="etReset">リセット</button>
       </div>
@@ -522,7 +522,7 @@
       <div class="prFbk" id="voFbk"></div>
       <div class="statRow" id="voStats"></div>
       <div class="dictrow">
-        <button id="voPlay">出題</button>
+        <button id="voPlay">▶ 出題</button>
         <button id="voPass">パス</button>
         <button id="voReset">リセット</button>
       </div>
@@ -945,14 +945,14 @@ async function startMetro() {
   trainBpm = bpm;
   nextNoteTime = audioCtx.currentTime + 0.08;
   timerId = setInterval(scheduler, 25);
-  startBtn.textContent = "ストップ";
+  startBtn.textContent = "■ ストップ";
   startBtn.classList.add("playing");
   acquireWake();
 }
 function stopMetro() {
   playing = false;
   clearInterval(timerId);
-  startBtn.textContent = "スタート";
+  startBtn.textContent = "▶ スタート";
   startBtn.classList.remove("playing");
   dotEls.forEach(d => d.classList.remove("on"));
   renderBpm();
@@ -984,12 +984,11 @@ bpmView.addEventListener("click", () => {
   input.addEventListener("keydown", (e) => { if (e.key === "Enter") input.blur(); });
 });
 
-function holdButton(el, step) {
+function holdRepeat(el, fn, repeatMs) {
   let delayTimer = null, repeatTimer = null;
-  const change = () => setBpm(bpm + step);
   const down = () => {
-    change();
-    delayTimer = setTimeout(() => { repeatTimer = setInterval(change, 60); }, 400);
+    fn();
+    delayTimer = setTimeout(() => { repeatTimer = setInterval(fn, repeatMs || 110); }, 400);
   };
   const up = () => { clearTimeout(delayTimer); clearInterval(repeatTimer); };
   el.addEventListener("pointerdown", down);
@@ -999,6 +998,7 @@ function holdButton(el, step) {
   el.addEventListener("contextmenu", e => e.preventDefault());
   el.addEventListener("click", e => e.preventDefault());
 }
+function holdButton(el, step) { holdRepeat(el, () => setBpm(bpm + step), 60); }
 holdButton(document.getElementById("minusBtn"), -1);
 holdButton(document.getElementById("plusBtn"), +1);
 
@@ -1072,8 +1072,8 @@ function bindTrStep(mId, pId, get, set, step, min, max) {
     saveTr();
     renderTrain();
   };
-  document.getElementById(mId).addEventListener("click", () => apply(-step));
-  document.getElementById(pId).addEventListener("click", () => apply(step));
+  holdRepeat(document.getElementById(mId), () => apply(-step));
+  holdRepeat(document.getElementById(pId), () => apply(step));
 }
 bindTrStep("trTgtM", "trTgtP", () => tr.target, v => tr.target = v, 5, 30, 260);
 bindTrStep("trStepM", "trStepP", () => tr.step, v => tr.step = v, 1, 1, 20);
@@ -2378,7 +2378,7 @@ function openSketch(sk) {
 }
 function renderDetail() {
   if (!curSk) return;
-  skNameEl.textContent = curSk.name;
+  skNameEl.textContent = curSk.name + " ▾";
   tunBtn.textContent = tunOf(curSk).l;
   capoValEl.textContent = "カポ " + curSk.capo;
   skBpmEl.value = curSk.bpm;
@@ -2482,12 +2482,14 @@ tunBtn.addEventListener("click", () => {
   saveSketches();
   renderDetail();
 });
-document.getElementById("capoMinus").addEventListener("click", () => {
+holdRepeat(document.getElementById("capoMinus"), () => {
+  if (!curSk) return;
   curSk.capo = Math.max(0, curSk.capo - 1);
   saveSketches();
   renderDetail();
 });
-document.getElementById("capoPlus").addEventListener("click", () => {
+holdRepeat(document.getElementById("capoPlus"), () => {
+  if (!curSk) return;
   curSk.capo = Math.min(9, curSk.capo + 1);
   saveSketches();
   renderDetail();
@@ -2725,8 +2727,8 @@ function renderSecChips() {
   });
 }
 function renderEdBt() { document.getElementById("edBtV").textContent = editBt; }
-document.getElementById("edBtM").addEventListener("click", () => { editBt = Math.max(1, editBt - 1); renderEdBt(); });
-document.getElementById("edBtP").addEventListener("click", () => { editBt = Math.min(16, editBt + 1); renderEdBt(); });
+holdRepeat(document.getElementById("edBtM"), () => { editBt = Math.max(1, editBt - 1); renderEdBt(); });
+holdRepeat(document.getElementById("edBtP"), () => { editBt = Math.min(16, editBt + 1); renderEdBt(); });
 document.getElementById("edPlay").addEventListener("click", () => strum(curSk, editFr, 0.45));
 document.getElementById("edClear").addEventListener("click", () => {
   editFr = [-1, -1, -1, -1, -1, -1];
@@ -3227,7 +3229,7 @@ function prRefresh() {
         voTargetMidi = -1;
         document.getElementById("voTarget").textContent = "—";
         document.getElementById("voFbk").textContent = "";
-        document.getElementById("voPlay").textContent = "出題";
+        document.getElementById("voPlay").textContent = "▶ 出題";
       }
     }
     prHintEl.textContent = voAsked ? "" : (prMicOn ? "「出題」で基準音が鳴ります" : "マイクを開始してから「出題」");
@@ -3240,7 +3242,7 @@ function prRefresh() {
       etSemi = -1;
       etStatusEl.textContent = "—";
       etFbkEl.textContent = "";
-      document.getElementById("etPlay").textContent = "出題";
+      document.getElementById("etPlay").textContent = "▶ 出題";
     }
     const name = scaleName(curScaleRoot, curScaleId);
     prTitleEl.textContent = name + " ▾";
@@ -3504,7 +3506,7 @@ async function rcStart() {
   rcTargets = [];
   rcNextBeat = audioCtx.currentTime + 0.1;
   rcTimer = setInterval(rcLoop, 25);
-  rcStartBtn.textContent = "ストップ";
+  rcStartBtn.textContent = "■ ストップ";
   rcStartBtn.classList.add("playing");
   rcFbkSet("カウントイン…");
   renderRcBpm();
@@ -3513,7 +3515,7 @@ function rcStop() {
   if (!rcOn && rcTimer === null) return;
   rcOn = false;
   if (rcTimer !== null) { clearInterval(rcTimer); rcTimer = null; }
-  rcStartBtn.textContent = "スタート";
+  rcStartBtn.textContent = "▶ スタート";
   rcStartBtn.classList.remove("playing");
   rcDotEls.forEach(d => d.classList.remove("on"));
   releaseWake();
@@ -3630,7 +3632,7 @@ document.getElementById("etReset").addEventListener("click", () => {
   etAsked = false; etSemi = -1;
   etStatusEl.textContent = "—";
   etFbkEl.textContent = "";
-  etPlayBtn.textContent = "出題";
+  etPlayBtn.textContent = "▶ 出題";
   renderEtStats();
 });
 
@@ -3668,10 +3670,10 @@ function voSaveRange() {
   store.set("gt.voHi", voHi);
   renderVoRange();
 }
-document.getElementById("voLoM").addEventListener("click", () => { voLo = Math.max(24, voLo - 1); if (voHi - voLo < 2) voHi = voLo + 2; voSaveRange(); });
-document.getElementById("voLoP").addEventListener("click", () => { voLo = Math.min(voHi - 2, voLo + 1); voSaveRange(); });
-document.getElementById("voHiM").addEventListener("click", () => { voHi = Math.max(voLo + 2, voHi - 1); voSaveRange(); });
-document.getElementById("voHiP").addEventListener("click", () => { voHi = Math.min(84, voHi + 1); voSaveRange(); });
+holdRepeat(document.getElementById("voLoM"), () => { voLo = Math.max(24, voLo - 1); if (voHi - voLo < 2) voHi = voLo + 2; voSaveRange(); });
+holdRepeat(document.getElementById("voLoP"), () => { voLo = Math.min(voHi - 2, voLo + 1); voSaveRange(); });
+holdRepeat(document.getElementById("voHiM"), () => { voHi = Math.max(voLo + 2, voHi - 1); voSaveRange(); });
+holdRepeat(document.getElementById("voHiP"), () => { voHi = Math.min(84, voHi + 1); voSaveRange(); });
 
 function renderVoStats() {
   const el = document.getElementById("voStats");
@@ -3815,7 +3817,7 @@ document.getElementById("voReset").addEventListener("click", () => {
   voFbkEl.textContent = "";
   voLiveEl.textContent = "";
   voDot.style.visibility = "hidden";
-  voPlayBtn.textContent = "出題";
+  voPlayBtn.textContent = "▶ 出題";
   renderVoStats();
 });
 
