@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <meta name="theme-color" content="#000000">
-<title>メトロノーム</title>
+<title>ギターツール</title>
 <style>
   * {
     margin: 0;
@@ -26,7 +26,35 @@
     touch-action: manipulation;
   }
 
-  /* 上部: 表示エリア */
+  /* ---- ページ切替 ---- */
+  .page { display: none; }
+  .page.active {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+
+  /* ---- タブ(最下部) ---- */
+  .tabs {
+    display: flex;
+    border-top: 2px solid #fff;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .tab {
+    flex: 1;
+    background: #000;
+    color: #fff;
+    border: none;
+    border-radius: 0;
+    min-height: 56px;
+    font-family: inherit;
+    font-size: 16px;
+    touch-action: manipulation;
+  }
+  .tab.active { background: #fff; color: #000; }
+
+  /* ---- 共通部品 ---- */
   .display {
     flex: 1;
     display: flex;
@@ -36,47 +64,8 @@
     gap: 24px;
     min-height: 0;
   }
-  .beats {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-    max-width: 92vw;
-    min-height: 22px;
-  }
-  .dot {
-    width: 14px;
-    height: 14px;
-    border: 2px solid #fff;
-    border-radius: 50%;
-  }
-  .dot.accent { width: 22px; height: 22px; }
-  .dot.on { background: #fff; }
-  .bpm {
-    font-size: clamp(56px, 22vw, 112px);
-    font-weight: 200;
-    line-height: 1;
-    font-variant-numeric: tabular-nums;
-  }
-  .bpm-input {
-    background: #000;
-    color: #fff;
-    border: none;
-    border-bottom: 2px solid #fff;
-    outline: none;
-    font-family: inherit;
-    font-size: clamp(48px, 18vw, 96px);
-    font-weight: 200;
-    width: 64vw;
-    text-align: center;
-    font-variant-numeric: tabular-nums;
-  }
-  .bpm-unit { font-size: 14px; letter-spacing: 0.1em; }
-
-  /* 下部: 操作エリア(片手・親指圏) */
   .controls {
-    padding: 0 16px calc(16px + env(safe-area-inset-bottom));
+    padding: 0 16px 12px;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -96,72 +85,213 @@
   button.on { background: #fff; color: #000; }
   .sub { min-height: 56px; }
   .step { min-height: 72px; font-size: 34px; font-weight: 300; }
-  .main { min-height: 88px; font-size: 20px; }
+  .main { min-height: 84px; font-size: 20px; }
   .main.playing { background: #fff; color: #000; }
 
-  /* 音量スライダー(表拍・裏拍) */
-  .vol {
-    flex: 1;
+  /* ---- メトロノーム ---- */
+  .beats {
     display: flex;
+    gap: 12px;
     align-items: center;
-    gap: 10px;
-    font-size: 14px;
+    justify-content: center;
+    flex-wrap: wrap;
+    max-width: 92vw;
+    min-height: 22px;
   }
+  .dot { width: 14px; height: 14px; border: 2px solid #fff; border-radius: 50%; }
+  .dot.accent { width: 22px; height: 22px; }
+  .dot.on { background: #fff; }
+  .bpm {
+    font-size: clamp(52px, 20vw, 104px);
+    font-weight: 200;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .bpm-input {
+    background: #000; color: #fff;
+    border: none; border-bottom: 2px solid #fff; outline: none;
+    font-family: inherit;
+    font-size: clamp(44px, 16vw, 88px);
+    font-weight: 200;
+    width: 64vw;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+  .bpm-unit { font-size: 13px; letter-spacing: 0.1em; }
+  .vol { flex: 1; display: flex; align-items: center; gap: 10px; font-size: 14px; }
   input[type="range"] {
-    -webkit-appearance: none;
-    appearance: none;
-    flex: 1;
-    height: 40px;
-    background: transparent;
+    -webkit-appearance: none; appearance: none;
+    flex: 1; height: 40px; background: transparent;
   }
-  input[type="range"]::-webkit-slider-runnable-track {
-    height: 2px;
-    background: #fff;
-  }
+  input[type="range"]::-webkit-slider-runnable-track { height: 2px; background: #fff; }
   input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    background: #fff;
-    margin-top: -12px;
+    width: 26px; height: 26px; border-radius: 50%;
+    background: #fff; margin-top: -12px;
   }
   input[type="range"]::-moz-range-track { height: 2px; background: #fff; }
   input[type="range"]::-moz-range-thumb {
-    width: 26px; height: 26px; border-radius: 50%;
-    background: #fff; border: none;
+    width: 26px; height: 26px; border-radius: 50%; background: #fff; border: none;
   }
+
+  /* ---- チューナー ---- */
+  .tuner-top {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    min-height: 0;
+    width: 100%;
+  }
+  .piano-wrap {
+    width: 100%;
+    padding: 0 16px;
+  }
+  .piano {
+    position: relative;
+    height: 92px;
+    width: 100%;
+    max-width: 440px;
+    margin: 0 auto;
+  }
+  .wkey {
+    position: absolute;
+    top: 0; height: 100%;
+    background: #fff;
+    border: 1px solid #000;
+    border-radius: 0 0 3px 3px;
+  }
+  .bkey {
+    position: absolute;
+    top: 0; height: 58%;
+    background: #000;
+    border-radius: 0 0 3px 3px;
+    z-index: 2;
+  }
+  .wkey.lit { background: #000; box-shadow: inset 0 0 0 2px #fff; }
+  .bkey.lit { background: #fff; box-shadow: inset 0 0 0 2px #000; }
+  .octLabel {
+    position: absolute;
+    transform: translateX(-50%);
+    font-size: 16px;
+    z-index: 3;
+    pointer-events: none;
+    display: none;
+    line-height: 1;
+  }
+
+  .noteBox {
+    border: 2px solid #fff;
+    border-radius: 18px;
+    min-width: 46vw;
+    padding: 10px 24px 14px;
+    text-align: center;
+  }
+  .noteBox.ok { background: #fff; color: #000; }
+  .stringLabel { font-size: 14px; min-height: 18px; }
+  .noteName {
+    font-size: clamp(44px, 16vw, 80px);
+    font-weight: 200;
+    line-height: 1.05;
+    font-variant-numeric: tabular-nums;
+  }
+  .centsText { font-size: 15px; font-variant-numeric: tabular-nums; }
+
+  .meter { position: relative; height: 86px; width: min(320px, 82vw); }
+  .needle {
+    position: absolute; left: 50%; bottom: 0;
+    width: 2px; height: 72px; margin-left: -1px;
+    background: #fff;
+    transform-origin: bottom center;
+    transition: transform 0.08s linear;
+    visibility: hidden;
+  }
+  .pivot {
+    position: absolute; left: 50%; bottom: -4px;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #fff; transform: translateX(-50%);
+  }
+  .hint { font-size: 13px; text-align: center; min-height: 17px; }
+
+  /* マイクボタン(アイコン) */
+  .micbtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .micbtn .ic-on { display: none; }
+  .micbtn.playing .ic-on { display: block; }
+  .micbtn.playing .ic-off { display: none; }
 </style>
 </head>
 <body>
 
-<div class="display">
-  <div class="beats" id="beats"></div>
-  <div class="bpm" id="bpmView">120</div>
-  <div class="bpm-unit">BPM</div>
+<!-- ============ メトロノーム ============ -->
+<div class="page" id="page-metro">
+  <div class="display">
+    <div class="beats" id="beats"></div>
+    <div class="bpm" id="bpmView">120</div>
+    <div class="bpm-unit">BPM</div>
+  </div>
+  <div class="controls">
+    <div class="row">
+      <label class="vol">表<input type="range" id="volMain" min="0" max="100"></label>
+      <label class="vol">裏<input type="range" id="volOff" min="0" max="100"></label>
+    </div>
+    <div class="row">
+      <button class="sub" id="beatBtn">4拍子</button>
+      <button class="sub" id="offBtn">裏拍</button>
+      <button class="sub" id="tapBtn">タップ</button>
+    </div>
+    <div class="row">
+      <button class="step" id="minusBtn" aria-label="テンポを下げる">−</button>
+      <button class="step" id="plusBtn" aria-label="テンポを上げる">+</button>
+    </div>
+    <button class="main" id="startBtn">スタート</button>
+  </div>
 </div>
 
-<div class="controls">
-  <div class="row">
-    <label class="vol">表<input type="range" id="volMain" min="0" max="100"></label>
-    <label class="vol">裏<input type="range" id="volOff" min="0" max="100"></label>
+<!-- ============ チューナー ============ -->
+<div class="page" id="page-tuner">
+  <div class="tuner-top">
+    <div class="piano-wrap">
+      <div class="piano" id="piano"><div class="octLabel" id="octLabel"></div></div>
+    </div>
+    <div class="noteBox" id="noteBox">
+      <div class="stringLabel" id="stringLabel"></div>
+      <div class="noteName" id="noteName">—</div>
+    </div>
+    <div class="centsText" id="centsText">マイク停止中</div>
+    <div class="meter">
+      <div class="needle" id="needle"></div>
+      <div class="pivot"></div>
+    </div>
   </div>
-  <div class="row">
-    <button class="sub" id="beatBtn">4拍子</button>
-    <button class="sub" id="offBtn">裏拍</button>
-    <button class="sub" id="tapBtn">タップ</button>
+  <div class="controls">
+    <div class="hint" id="tunerHint"></div>
+    <div class="row">
+      <button class="sub" id="modeBtn">クロマチック</button>
+      <button class="sub" id="refBtn">440Hz</button>
+    </div>
+    <button class="main micbtn" id="tunerBtn" aria-label="マイク オン/オフ">
+      <svg class="ic ic-off" viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
+      <svg class="ic ic-on" viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+    </button>
   </div>
-  <div class="row">
-    <button class="step" id="minusBtn" aria-label="テンポを下げる">−</button>
-    <button class="step" id="plusBtn" aria-label="テンポを上げる">+</button>
-  </div>
-  <button class="main" id="startBtn">スタート</button>
+</div>
+
+<!-- ============ タブ ============ -->
+<div class="tabs">
+  <button class="tab" id="tab-metro">メトロノーム</button>
+  <button class="tab" id="tab-tuner">チューナー</button>
 </div>
 
 <script>
 "use strict";
 
-/* ---- 保存(公開URL上でのみ有効。失敗しても動作継続) ---- */
+/* ================= 共通 ================= */
 const store = {
   get(key, fallback) {
     try {
@@ -174,7 +304,41 @@ const store = {
   }
 };
 
-/* ---- 状態 ---- */
+let audioCtx = null;
+function ensureAudio() {
+  if (!audioCtx) {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    audioCtx = new AC();
+  }
+  return audioCtx.resume();
+}
+
+let wakeLock = null;
+async function acquireWake() {
+  try { wakeLock = await navigator.wakeLock.request("screen"); } catch (e) {}
+}
+function releaseWake() {
+  if (wakeLock) { wakeLock.release().catch(() => {}); wakeLock = null; }
+}
+
+/* ================= タブ ================= */
+const pages = { metro: document.getElementById("page-metro"), tuner: document.getElementById("page-tuner") };
+const tabs = { metro: document.getElementById("tab-metro"), tuner: document.getElementById("tab-tuner") };
+
+function showTab(name) {
+  if (!pages[name]) name = "metro";
+  if (name !== "metro" && playing) stopMetro();
+  if (name !== "tuner" && micOn) stopTuner();
+  for (const key in pages) {
+    pages[key].classList.toggle("active", key === name);
+    tabs[key].classList.toggle("active", key === name);
+  }
+  store.set("gt.tab", name);
+}
+tabs.metro.addEventListener("click", () => showTab("metro"));
+tabs.tuner.addEventListener("click", () => showTab("tuner"));
+
+/* ================= メトロノーム ================= */
 const BPM_MIN = 30, BPM_MAX = 260;
 const BEAT_OPTIONS = [2, 3, 4, 5, 7, 11];
 
@@ -189,11 +353,9 @@ if (isNaN(volOff)) volOff = 60;
 
 let playing = false;
 let editing = false;
-let audioCtx = null;
-let nextNoteTime = 0;   // 次のクリックを鳴らす時刻(AudioContext基準)
-let currentBeat = 0;    // 次に鳴らす拍(0が頭)
+let nextNoteTime = 0;
+let currentBeat = 0;
 let timerId = null;
-let wakeLock = null;
 
 const bpmView = document.getElementById("bpmView");
 const beatsEl = document.getElementById("beats");
@@ -203,14 +365,8 @@ const offBtn = document.getElementById("offBtn");
 const volMainEl = document.getElementById("volMain");
 const volOffEl = document.getElementById("volOff");
 
-/* ---- 表示 ---- */
-function formatBpm(v) {
-  return Number.isInteger(v) ? String(v) : v.toFixed(1);
-}
-function renderBpm() {
-  bpmView.textContent = formatBpm(bpm);
-  store.set("gt.bpm", bpm);
-}
+function formatBpm(v) { return Number.isInteger(v) ? String(v) : v.toFixed(1); }
+function renderBpm() { bpmView.textContent = formatBpm(bpm); store.set("gt.bpm", bpm); }
 function renderDots() {
   beatsEl.innerHTML = "";
   for (let i = 0; i < beatsPerBar; i++) {
@@ -219,25 +375,21 @@ function renderDots() {
     beatsEl.appendChild(d);
   }
 }
-function renderOff() {
-  offBtn.classList.toggle("on", offbeatOn);
-}
+function renderOff() { offBtn.classList.toggle("on", offbeatOn); }
 function setBpm(v) {
-  v = Math.round(v * 10) / 10; // 小数第1位まで
+  v = Math.round(v * 10) / 10;
   if (isNaN(v)) return;
   bpm = Math.min(BPM_MAX, Math.max(BPM_MIN, v));
   renderBpm();
 }
 
-/* ---- クリック音(端末内で合成。音声ファイル不要) ---- */
-/* kind: "accent"(小節頭) / "main"(表拍) / "off"(裏拍) */
 function playClick(time, kind) {
   let freq, vol, dur;
-  if (kind === "accent")      { freq = 1600; vol = volMain; dur = 0.05; }
-  else if (kind === "main")   { freq = 1000; vol = volMain; dur = 0.05; }
-  else                        { freq = 2000; vol = volOff;  dur = 0.03; }
+  if (kind === "accent")    { freq = 1600; vol = volMain; dur = 0.05; }
+  else if (kind === "main") { freq = 1000; vol = volMain; dur = 0.05; }
+  else                      { freq = 2000; vol = volOff;  dur = 0.03; }
   const peak = 0.5 * (vol / 100);
-  if (peak <= 0.0002) return; // 音量0は鳴らさない
+  if (peak <= 0.0002) return;
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
   osc.frequency.value = freq;
@@ -249,7 +401,6 @@ function playClick(time, kind) {
   osc.stop(time + dur + 0.01);
 }
 
-/* ---- スケジューラ(少し先の音を予約し続ける方式。タイミング精度確保) ---- */
 function scheduler() {
   while (nextNoteTime < audioCtx.currentTime + 0.12) {
     const beat = currentBeat;
@@ -272,37 +423,26 @@ function scheduleVisual(beat, time) {
   }, delay);
 }
 
-/* ---- 開始・停止 ---- */
-async function start() {
-  if (!audioCtx) {
-    const AC = window.AudioContext || window.webkitAudioContext;
-    audioCtx = new AC();
-  }
-  await audioCtx.resume();
+async function startMetro() {
+  await ensureAudio();
   playing = true;
   currentBeat = 0;
   nextNoteTime = audioCtx.currentTime + 0.08;
   timerId = setInterval(scheduler, 25);
   startBtn.textContent = "ストップ";
   startBtn.classList.add("playing");
-  try { wakeLock = await navigator.wakeLock.request("screen"); } catch (e) {}
+  acquireWake();
 }
-function stop() {
+function stopMetro() {
   playing = false;
   clearInterval(timerId);
   startBtn.textContent = "スタート";
   startBtn.classList.remove("playing");
   for (const d of beatsEl.children) d.classList.remove("on");
-  if (wakeLock) { wakeLock.release().catch(() => {}); wakeLock = null; }
+  releaseWake();
 }
-startBtn.addEventListener("click", () => (playing ? stop() : start()));
+startBtn.addEventListener("click", () => (playing ? stopMetro() : startMetro()));
 
-/* 画面がバックグラウンドになったら停止(タイミングが乱れるため) */
-document.addEventListener("visibilitychange", () => {
-  if (document.hidden && playing) stop();
-});
-
-/* ---- BPM直接入力(数字タップ→実数入力可) ---- */
 bpmView.addEventListener("click", () => {
   if (editing) return;
   editing = true;
@@ -323,25 +463,17 @@ bpmView.addEventListener("click", () => {
     editing = false;
   };
   input.addEventListener("blur", commit);
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") input.blur();
-  });
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") input.blur(); });
 });
 
-/* ---- −/+ ボタン(長押しで連続変更) ---- */
 function holdButton(el, step) {
   let delayTimer = null, repeatTimer = null;
   const change = () => setBpm(bpm + step);
   const down = () => {
     change();
-    delayTimer = setTimeout(() => {
-      repeatTimer = setInterval(change, 60);
-    }, 400);
+    delayTimer = setTimeout(() => { repeatTimer = setInterval(change, 60); }, 400);
   };
-  const up = () => {
-    clearTimeout(delayTimer);
-    clearInterval(repeatTimer);
-  };
+  const up = () => { clearTimeout(delayTimer); clearInterval(repeatTimer); };
   el.addEventListener("pointerdown", down);
   el.addEventListener("pointerup", up);
   el.addEventListener("pointercancel", up);
@@ -352,7 +484,6 @@ function holdButton(el, step) {
 holdButton(document.getElementById("minusBtn"), -1);
 holdButton(document.getElementById("plusBtn"), +1);
 
-/* ---- タップテンポ(叩いた間隔の平均からBPM算出) ---- */
 let taps = [];
 document.getElementById("tapBtn").addEventListener("click", () => {
   const now = performance.now();
@@ -368,7 +499,6 @@ document.getElementById("tapBtn").addEventListener("click", () => {
   if (taps.length > 8) taps = taps.slice(-8);
 });
 
-/* ---- 拍子切替(2→3→4→5→7→11) ---- */
 beatBtn.addEventListener("click", () => {
   const i = BEAT_OPTIONS.indexOf(beatsPerBar);
   beatsPerBar = BEAT_OPTIONS[(i + 1) % BEAT_OPTIONS.length];
@@ -378,14 +508,12 @@ beatBtn.addEventListener("click", () => {
   renderDots();
 });
 
-/* ---- 裏拍オン/オフ ---- */
 offBtn.addEventListener("click", () => {
   offbeatOn = !offbeatOn;
   store.set("gt.off", offbeatOn ? "1" : "0");
   renderOff();
 });
 
-/* ---- 音量スライダー ---- */
 volMainEl.value = volMain;
 volOffEl.value = volOff;
 volMainEl.addEventListener("input", () => {
@@ -397,11 +525,264 @@ volOffEl.addEventListener("input", () => {
   store.set("gt.volOff", volOff);
 });
 
-/* ---- 初期化 ---- */
+/* ================= チューナー ================= */
+const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+const TUNER_MODES = ["クロマチック", "ギター", "ベース"];
+const GUITAR_TARGETS = [40, 45, 50, 55, 59, 64]; /* E2 A2 D3 G3 B3 E4 */
+const BASS_TARGETS = [28, 33, 38, 43];           /* E1 A1 D2 G2 */
+const IN_TUNE_CENTS = 5;
+const WHITE_PC = [0, 2, 4, 5, 7, 9, 11];
+
+let tunerMode = parseInt(store.get("gt.tmode", "0"), 10);
+if (![0, 1, 2].includes(tunerMode)) tunerMode = 0;
+let refPitch = parseInt(store.get("gt.ref", "440"), 10);
+if (refPitch !== 442) refPitch = 440;
+
+let micOn = false;
+let stream = null;
+let analyser = null;
+let micSource = null;
+let tunerTimer = null;
+let lastGoodTime = 0;
+let dispCents = null;
+let prevTarget = null;
+const pitchBuf = new Float32Array(4096);
+
+const noteBox = document.getElementById("noteBox");
+const noteNameEl = document.getElementById("noteName");
+const stringLabelEl = document.getElementById("stringLabel");
+const centsTextEl = document.getElementById("centsText");
+const needleEl = document.getElementById("needle");
+const octLabelEl = document.getElementById("octLabel");
+const modeBtn = document.getElementById("modeBtn");
+const refBtn = document.getElementById("refBtn");
+const tunerBtn = document.getElementById("tunerBtn");
+const tunerHint = document.getElementById("tunerHint");
+
+/* ---- ピアノ鍵盤(1オクターブ C〜B)の生成 ---- */
+const keyEls = {};
+const keyCenters = {};
+(function buildPiano() {
+  const piano = document.getElementById("piano");
+  const wk = 100 / 7;
+  let wIndex = 0;
+  for (let pc = 0; pc < 12; pc++) {
+    if (WHITE_PC.includes(pc)) {
+      const el = document.createElement("div");
+      el.className = "wkey";
+      el.style.left = (wIndex * wk) + "%";
+      el.style.width = wk + "%";
+      piano.appendChild(el);
+      keyEls[pc] = el;
+      keyCenters[pc] = (wIndex + 0.5) * wk;
+      wIndex++;
+    } else {
+      const el = document.createElement("div");
+      el.className = "bkey";
+      el.style.left = (wIndex * wk - wk * 0.3) + "%";
+      el.style.width = (wk * 0.6) + "%";
+      piano.appendChild(el);
+      keyEls[pc] = el;
+      keyCenters[pc] = wIndex * wk;
+    }
+  }
+})();
+
+let litKey = null;
+function highlightKey(pc, octave) {
+  if (litKey !== null && keyEls[litKey]) keyEls[litKey].classList.remove("lit");
+  litKey = null;
+  if (pc === null) {
+    octLabelEl.style.display = "none";
+    return;
+  }
+  keyEls[pc].classList.add("lit");
+  litKey = pc;
+  const isWhite = WHITE_PC.includes(pc);
+  octLabelEl.textContent = octave;
+  octLabelEl.style.left = keyCenters[pc] + "%";
+  octLabelEl.style.top = isWhite ? "60%" : "12%";
+  /* 反転後の鍵の色に対して読める文字色にする */
+  octLabelEl.style.color = isWhite ? "#fff" : "#000";
+  octLabelEl.style.display = "block";
+}
+
+/* ---- 音程検出(YIN法) ---- */
+function detectPitch(buf, sampleRate) {
+  const SIZE = buf.length;
+  const W = 2048;
+  let rms = 0;
+  for (let i = 0; i < SIZE; i++) rms += buf[i] * buf[i];
+  rms = Math.sqrt(rms / SIZE);
+  if (rms < 0.008) return -1;
+
+  const minTau = Math.max(2, Math.floor(sampleRate / 1600));
+  const tauMax = Math.min(Math.floor(sampleRate / 35), W - 1);
+
+  const d = new Float32Array(tauMax + 1);
+  for (let tau = 1; tau <= tauMax; tau++) {
+    let sum = 0;
+    for (let i = 0; i < W; i++) {
+      const diff = buf[i] - buf[i + tau];
+      sum += diff * diff;
+    }
+    d[tau] = sum;
+  }
+  const cmnd = new Float32Array(tauMax + 1);
+  cmnd[0] = 1;
+  let runningSum = 0;
+  for (let tau = 1; tau <= tauMax; tau++) {
+    runningSum += d[tau];
+    cmnd[tau] = runningSum === 0 ? 1 : d[tau] * tau / runningSum;
+  }
+  let tauEstimate = -1;
+  for (let tau = minTau; tau <= tauMax; tau++) {
+    if (cmnd[tau] < 0.12) {
+      while (tau + 1 <= tauMax && cmnd[tau + 1] < cmnd[tau]) tau++;
+      tauEstimate = tau;
+      break;
+    }
+  }
+  if (tauEstimate === -1) {
+    let minVal = 1, minIdx = -1;
+    for (let tau = minTau; tau <= tauMax; tau++) {
+      if (cmnd[tau] < minVal) { minVal = cmnd[tau]; minIdx = tau; }
+    }
+    if (minVal < 0.35) tauEstimate = minIdx;
+    else return -1;
+  }
+  let betterTau = tauEstimate;
+  if (tauEstimate > 1 && tauEstimate < tauMax) {
+    const s0 = cmnd[tauEstimate - 1];
+    const s1 = cmnd[tauEstimate];
+    const s2 = cmnd[tauEstimate + 1];
+    const denom = s0 + s2 - 2 * s1;
+    if (denom !== 0) betterTau = tauEstimate + (s0 - s2) / (2 * denom);
+  }
+  return sampleRate / betterTau;
+}
+
+/* ---- 検出結果の表示 ---- */
+function processFreq(freq) {
+  const midi = 69 + 12 * Math.log2(freq / refPitch);
+  let target, label = "";
+  if (tunerMode === 0) {
+    target = Math.round(midi);
+  } else {
+    const targets = tunerMode === 1 ? GUITAR_TARGETS : BASS_TARGETS;
+    let best = 0, bestDiff = Infinity;
+    for (let i = 0; i < targets.length; i++) {
+      const diff = Math.abs(midi - targets[i]);
+      if (diff < bestDiff) { bestDiff = diff; best = i; }
+    }
+    target = targets[best];
+    label = (targets.length - best) + "弦";
+  }
+  let cents = (midi - target) * 100;
+  if (target !== prevTarget) { dispCents = cents; prevTarget = target; }
+  else { dispCents = dispCents * 0.5 + cents * 0.5; }
+
+  const pc = ((target % 12) + 12) % 12;
+  const octave = Math.floor(target / 12) - 1;
+  noteNameEl.textContent = NOTE_NAMES[pc] + octave;
+  stringLabelEl.textContent = label;
+  const rounded = Math.round(dispCents);
+  centsTextEl.textContent = (rounded > 0 ? "+" : "") + rounded + " cent";
+  const clamped = Math.max(-50, Math.min(50, dispCents));
+  needleEl.style.visibility = "visible";
+  needleEl.style.transform = "rotate(" + (clamped * 0.9) + "deg)";
+  noteBox.classList.toggle("ok", Math.abs(dispCents) <= IN_TUNE_CENTS);
+  highlightKey(pc, octave);
+}
+function showIdle(message) {
+  noteNameEl.textContent = "—";
+  stringLabelEl.textContent = "";
+  centsTextEl.textContent = message || "音を検出中…";
+  needleEl.style.visibility = "hidden";
+  noteBox.classList.remove("ok");
+  highlightKey(null);
+  dispCents = null;
+  prevTarget = null;
+}
+
+function tunerLoop() {
+  analyser.getFloatTimeDomainData(pitchBuf);
+  const freq = detectPitch(pitchBuf, audioCtx.sampleRate);
+  if (freq > 0) {
+    lastGoodTime = performance.now();
+    processFreq(freq);
+  } else if (performance.now() - lastGoodTime > 700) {
+    showIdle();
+  }
+}
+
+async function startTuner() {
+  tunerHint.textContent = "";
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    tunerHint.textContent = "この環境ではマイクを使用できません。公開URLで開いてください。";
+    return;
+  }
+  await ensureAudio();
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
+    });
+  } catch (e) {
+    tunerHint.textContent = "マイクを使用できません。ブラウザの設定でマイクを許可してください。";
+    return;
+  }
+  micSource = audioCtx.createMediaStreamSource(stream);
+  analyser = audioCtx.createAnalyser();
+  analyser.fftSize = 4096;
+  micSource.connect(analyser);
+  micOn = true;
+  lastGoodTime = 0;
+  showIdle();
+  tunerTimer = setInterval(tunerLoop, 60);
+  tunerBtn.classList.add("playing");
+  acquireWake();
+}
+function stopTuner() {
+  micOn = false;
+  clearInterval(tunerTimer);
+  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+  if (micSource) { micSource.disconnect(); micSource = null; }
+  analyser = null;
+  tunerBtn.classList.remove("playing");
+  showIdle("マイク停止中");
+  releaseWake();
+}
+tunerBtn.addEventListener("click", () => (micOn ? stopTuner() : startTuner()));
+
+function renderMode() { modeBtn.textContent = TUNER_MODES[tunerMode]; }
+modeBtn.addEventListener("click", () => {
+  tunerMode = (tunerMode + 1) % TUNER_MODES.length;
+  store.set("gt.tmode", tunerMode);
+  prevTarget = null;
+  renderMode();
+});
+function renderRef() { refBtn.textContent = refPitch + "Hz"; }
+refBtn.addEventListener("click", () => {
+  refPitch = refPitch === 440 ? 442 : 440;
+  store.set("gt.ref", refPitch);
+  renderRef();
+});
+
+/* ================= 全体 ================= */
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) {
+    if (playing) stopMetro();
+    if (micOn) stopTuner();
+  }
+});
+
 setBpm(bpm);
 renderDots();
 beatBtn.textContent = beatsPerBar + "拍子";
 renderOff();
+renderMode();
+renderRef();
+showTab(store.get("gt.tab", "metro"));
 </script>
 </body>
 </html>
