@@ -36,3 +36,3830 @@
   .tab.active { background: #fff; color: #000; }
 
   .display {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 24px; min-height: 0;
+  }
+  .controls { padding: 0 16px 12px; display: flex; flex-direction: column; gap: 12px; }
+  .row { display: flex; gap: 12px; }
+  button {
+    flex: 1; background: #000; color: #fff;
+    border: 2px solid #fff; border-radius: 18px;
+    font-family: inherit; font-size: 17px;
+    touch-action: manipulation;
+  }
+  button:active { background: #fff; color: #000; }
+  button.on { background: #fff; color: #000; }
+  .sub { min-height: 56px; }
+  .step { min-height: 72px; font-size: 34px; font-weight: 300; }
+  .main { min-height: 84px; font-size: 20px; }
+  .main.playing { background: #fff; color: #000; }
+
+  /* ---- メトロノーム ---- */
+  .beats { display: flex; gap: 2px; align-items: center; justify-content: center; flex-wrap: wrap; max-width: 92vw; min-height: 42px; }
+  .dothit { padding: 10px 6px; display: flex; align-items: center; justify-content: center; min-width: 34px; }
+  .dot { width: 14px; height: 14px; border: 2px solid #fff; border-radius: 50%; }
+  .dot.accent { width: 22px; height: 22px; }
+  .dot.on { background: #fff; }
+  .bpm { font-size: clamp(52px, 20vw, 104px); font-weight: 200; line-height: 1; font-variant-numeric: tabular-nums; border-bottom: 1px dashed #fff; padding-bottom: 6px; }
+  .bpm-input {
+    background: #000; color: #fff; border: none; border-bottom: 2px solid #fff; outline: none;
+    font-family: inherit; font-size: clamp(44px, 16vw, 88px); font-weight: 200;
+    width: 64vw; text-align: center; font-variant-numeric: tabular-nums;
+  }
+  .bpm-unit { font-size: 13px; letter-spacing: 0.1em; }
+  .vol { flex: 1; display: flex; align-items: center; gap: 10px; font-size: 14px; }
+  input[type="range"] { -webkit-appearance: none; appearance: none; flex: 1; height: 40px; background: transparent; }
+  input[type="range"]::-webkit-slider-runnable-track { height: 2px; background: #fff; }
+  input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; border-radius: 50%; background: #fff; margin-top: -12px; }
+  input[type="range"]::-moz-range-track { height: 2px; background: #fff; }
+  input[type="range"]::-moz-range-thumb { width: 26px; height: 26px; border-radius: 50%; background: #fff; border: none; }
+
+  /* ---- 鍵盤(共通) ---- */
+  .wkey { position: absolute; top: 0; height: 100%; background: #fff; border: 1px solid #000; border-radius: 0 0 3px 3px; }
+  .bkey { position: absolute; top: 0; height: 58%; background: #000; border-radius: 0 0 3px 3px; z-index: 2; }
+  .kdot {
+    display: none;
+    position: absolute; left: 50%; transform: translateX(-50%);
+    border-radius: 50%;
+    text-align: center;
+    pointer-events: none;
+    line-height: 1;
+    z-index: 3;
+  }
+  .wkey .kdot { background: #000; color: #fff; }
+  .bkey .kdot { background: #fff; color: #000; }
+  .wkey.lit .kdot, .wkey.press .kdot,
+  .bkey.lit .kdot, .bkey.press .kdot { display: flex; align-items: center; justify-content: center; }
+
+  /* ---- チューナー ---- */
+  .tuner-top { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; min-height: 0; width: 100%; }
+  .piano-wrap { width: 100%; padding: 0 16px; }
+  .piano { position: relative; height: 92px; width: 100%; max-width: 440px; margin: 0 auto; }
+  .piano .kdot { width: 24px; height: 24px; font-size: 14px; }
+  .piano .wkey .kdot { bottom: 8px; }
+  .piano .bkey .kdot { bottom: 6px; }
+  .octRow { display: flex; gap: 6px; align-items: center; width: 100%; max-width: 440px; margin: 10px auto 0; }
+  .octRow .lbl { font-size: 12px; margin-right: 4px; }
+  .octBtn { flex: 1; min-height: 42px; font-size: 15px; border-radius: 10px; }
+  .noteBox { border: 2px solid #fff; border-radius: 18px; min-width: 46vw; padding: 10px 24px 14px; text-align: center; }
+  .noteBox.ok { background: #fff; color: #000; }
+  .stringLabel { font-size: 14px; min-height: 18px; }
+  .noteName { font-size: clamp(40px, 14vw, 72px); font-weight: 200; line-height: 1.05; font-variant-numeric: tabular-nums; }
+  .centsText { font-size: 15px; font-variant-numeric: tabular-nums; }
+  .meter { position: relative; height: 80px; width: min(320px, 82vw); }
+  .needle { position: absolute; left: 50%; bottom: 0; width: 2px; height: 68px; margin-left: -1px; background: #fff; transform-origin: bottom center; transition: transform 0.08s linear; visibility: hidden; }
+  .pivot { position: absolute; left: 50%; bottom: -4px; width: 8px; height: 8px; border-radius: 50%; background: #fff; transform: translateX(-50%); }
+  .hint { font-size: 13px; text-align: center; min-height: 17px; }
+  .micbtn { display: flex; align-items: center; justify-content: center; }
+  .micbtn .ic-on { display: none; }
+  .micbtn.playing .ic-on { display: block; }
+  .micbtn.playing .ic-off { display: none; }
+
+  /* ---- 辞典 ---- */
+  .dict-body {
+    flex: 1; min-height: 0;
+    display: flex; flex-direction: column;
+    gap: 12px;
+    padding: 10px 0 8px;
+    overflow-y: auto;
+  }
+  .segRow { display: flex; gap: 10px; padding: 0 16px; }
+  .segRow button { min-height: 44px; font-size: 15px; border-radius: 12px; }
+  .dict-body.m-scale .only-chord, .dict-body.m-rev .only-chord { display: none; }
+  .dict-body.m-chord .only-scale, .dict-body.m-rev .only-scale { display: none; }
+  .dict-body.m-chord .only-rev, .dict-body.m-scale .only-rev { display: none; }
+  .wrapchips { flex-wrap: wrap; }
+  .fb-scroll { overflow-x: auto; padding: 0 16px; -webkit-overflow-scrolling: touch; }
+  .fb-scroll svg { display: block; }
+  .dictrow { display: flex; gap: 10px; padding: 0 16px; }
+  .dictrow button { min-height: 46px; font-size: 15px; border-radius: 12px; }
+  .vlabel { flex: 1.4; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+  .nameArea { display: flex; align-items: center; gap: 8px; padding: 0 12px; }
+  .sugCol { flex: 0 0 88px; display: flex; flex-direction: column; gap: 6px; }
+  .sugHead { font-size: 11px; text-align: center; }
+  .schip { min-height: 34px; font-size: 13px; border-radius: 10px; padding: 0 4px; }
+  .bigName { flex: 1; text-align: center; font-weight: 250; line-height: 1.1; }
+  .chordTones { text-align: center; font-size: 14px; }
+  .kb2 { position: relative; height: 76px; width: 100%; }
+  .kb2 .kdot { width: 15px; height: 15px; font-size: 10px; }
+  .kb2 .wkey .kdot { bottom: 6px; }
+  .kb2 .bkey .kdot { bottom: 4px; }
+  .kb2wrap { padding: 0 16px; }
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding: 0 16px; align-items: center; -webkit-overflow-scrolling: touch; }
+  .chips .clabel { font-size: 12px; flex: 0 0 auto; margin-right: 2px; }
+  .chip { flex: 0 0 auto; min-height: 40px; padding: 0 14px; font-size: 15px; border-radius: 12px; }
+
+  .sheet { position: fixed; inset: 0; background: #000; z-index: 10; display: none; flex-direction: column; }
+  .sheet.open { display: flex; }
+  .sheetHead { display: flex; align-items: center; gap: 10px; padding: 14px 16px; }
+  .sheetHead .ttl { flex: 1; font-size: 22px; font-weight: 250; }
+  .sheetHead button { flex: 0 0 auto; min-height: 44px; padding: 0 18px; font-size: 15px; border-radius: 12px; }
+  .sheetBody { flex: 1; overflow-y: auto; padding: 0 16px calc(20px + env(safe-area-inset-bottom)); }
+  .catTitle { font-size: 13px; margin: 14px 0 8px; }
+  .rootGrid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+  .rootGrid button { min-height: 44px; font-size: 15px; border-radius: 12px; }
+  .catGrid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .catGrid button { flex: 0 0 auto; min-height: 44px; padding: 0 14px; font-size: 15px; border-radius: 12px; }
+
+  /* ---- メモ ---- */
+  .mv { display: none; flex-direction: column; flex: 1; min-height: 0; overflow-y: auto; gap: 12px; padding: 10px 0 14px; }
+  .mv.on { display: flex; }
+  .memoHead { display: flex; align-items: center; gap: 10px; padding: 0 16px; }
+  .memoHead .mtitle { flex: 1; font-size: 20px; font-weight: 250; }
+  .mbtn { min-height: 46px; font-size: 15px; border-radius: 12px; padding: 0 16px; flex: 0 0 auto; }
+  .addBtn { margin: 0 16px; min-height: 52px; }
+  .sklist, .chordList { display: flex; flex-direction: column; gap: 8px; padding: 0 16px; }
+  .skrow, .ccard {
+    display: flex; align-items: center; gap: 10px;
+    border: 2px solid #fff; border-radius: 14px;
+    min-height: 54px; padding: 0 14px;
+    background: #000; color: #fff; font-family: inherit;
+    text-align: left;
+  }
+  .skrow .nm { flex: 1; font-size: 16px; text-align: left; }
+  .skrow .cnt { font-size: 13px; }
+  .ccard .cn { flex: 1; font-size: 17px; text-align: left; }
+  .ccard .cf { font-size: 14px; font-variant-numeric: tabular-nums; letter-spacing: 0.06em; }
+  .ccard.playingCard { background: #fff; color: #000; }
+  .secHead { font-size: 12px; margin-top: 6px; }
+  .minput {
+    background: #000; color: #fff;
+    border: 2px solid #fff; border-radius: 12px;
+    min-height: 46px; padding: 0 12px;
+    font-family: inherit; font-size: 16px; flex: 1;
+    outline: none;
+  }
+  .mtext {
+    background: #000; color: #fff;
+    border: 2px solid #fff; border-radius: 12px;
+    min-height: 76px; padding: 10px 12px;
+    font-family: inherit; font-size: 15px;
+    margin: 0 16px; outline: none;
+  }
+  .formrow { display: flex; align-items: center; gap: 10px; padding: 0 16px; }
+  .flabel { font-size: 13px; width: 68px; flex: 0 0 auto; }
+  input, textarea { user-select: text; -webkit-user-select: text; }
+  .ioPanel { display: none; flex-direction: column; gap: 8px; padding: 0 16px; }
+  .ioPanel.on { display: flex; }
+  .ioPanel .mtext { margin: 0; }
+
+  /* ---- 練習 ---- */
+  #prBody.m-pa .only-pb, #prBody.m-pa .only-pc, #prBody.m-pa .only-pd, #prBody.m-pa .only-pe { display: none; }
+  #prBody.m-pb .only-pa, #prBody.m-pb .only-pc, #prBody.m-pb .only-pd, #prBody.m-pb .only-pe { display: none; }
+  #prBody.m-pc .only-pa, #prBody.m-pc .only-pb, #prBody.m-pc .only-pd, #prBody.m-pc .only-pe,
+  #prBody.m-pc .nameArea, #prBody.m-pc .fb-scroll,
+  #prBody.m-pc .only-mic { display: none; }
+  #prBody.m-pd .only-pa, #prBody.m-pd .only-pb, #prBody.m-pd .only-pc, #prBody.m-pd .only-pe,
+  #prBody.m-pd .fb-scroll, #prBody.m-pd .only-mic { display: none; }
+  #prBody.m-pe .only-pa, #prBody.m-pe .only-pb, #prBody.m-pe .only-pc, #prBody.m-pe .only-pd,
+  #prBody.m-pe .fb-scroll { display: none; }
+  #prBody .segRow button { font-size: 12px; }
+  .vLive { text-align: center; font-size: 22px; font-variant-numeric: tabular-nums; min-height: 28px; }
+  .vBar { position: relative; height: 40px; margin: 0 28px; }
+  .vBar .vTrack { position: absolute; left: 0; right: 0; top: 19px; height: 2px; background: #fff; }
+  .vBar .vTick { position: absolute; top: 10px; width: 2px; height: 20px; background: #fff; left: 50%; margin-left: -1px; }
+  .vBar .vTickS { position: absolute; top: 14px; width: 2px; height: 12px; background: #fff; margin-left: -1px; }
+  .vBar .vDot { position: absolute; top: 8px; width: 24px; height: 24px; border-radius: 50%; background: #fff; transform: translateX(-50%); left: 50%; visibility: hidden; }
+  .etGrid { display: flex; flex-wrap: wrap; gap: 10px; padding: 0 16px; justify-content: center; }
+  .etGrid button { flex: 0 0 auto; min-width: 72px; min-height: 56px; font-size: 18px; border-radius: 14px; padding: 0 14px; }
+  .rcScore { font-size: 56px; font-weight: 200; text-align: center; line-height: 1.05; font-variant-numeric: tabular-nums; }
+  .rcPad { margin: 0 16px; min-height: 150px; font-size: 24px; letter-spacing: 0.2em; border-radius: 22px; }
+  .pcol { display: flex; flex-direction: column; gap: 12px; }
+  .flashBar { height: 8px; margin: 0 16px; background: #000; border-radius: 4px; }
+  .flashBar.on { background: #fff; }
+  .statRow { display: flex; justify-content: space-around; padding: 0 16px; }
+  .stat { text-align: center; }
+  .stat .sv { font-size: 24px; font-weight: 250; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .stat .sl { font-size: 11px; }
+  .prQ { font-size: 60px; font-weight: 200; text-align: center; line-height: 1.05; }
+  .prFbk { text-align: center; font-size: 16px; min-height: 22px; }
+
+  /* ---- テンポトレーナー ---- */
+  .trow { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
+  .tlabel { flex: 1; font-size: 15px; }
+  .tstep { flex: 0 0 56px; min-height: 46px; font-size: 22px; font-weight: 300; border-radius: 12px; }
+  .tval { flex: 0 0 88px; text-align: center; font-size: 17px; font-variant-numeric: tabular-nums; }
+
+  /* ---- メモ拍数・本番ビュー ---- */
+  .cbt { font-size: 12px; flex: 0 0 auto; }
+  .liveSec { font-size: 15px; margin: 18px 0 6px; }
+  .liveRow { display: flex; align-items: baseline; gap: 14px; padding: 10px 6px; border-radius: 12px; }
+  .liveRow .ln { font-size: 40px; font-weight: 250; line-height: 1.1; }
+  .liveRow .lf { font-size: 16px; font-variant-numeric: tabular-nums; letter-spacing: 0.06em; }
+  .liveRow .lb { font-size: 14px; }
+  .liveRow.playingCard { background: #fff; color: #000; }
+</style>
+</head>
+<body>
+
+<!-- ============ メトロノーム ============ -->
+<div class="page" id="page-metro">
+  <div class="display">
+    <div class="beats" id="beats"></div>
+    <div class="bpm" id="bpmView">120</div>
+    <div class="bpm-unit">BPM</div>
+  </div>
+  <div class="controls">
+    <div class="hint" id="metroHint"></div>
+    <div class="row">
+      <label class="vol">表<input type="range" id="volMain" min="0" max="100"></label>
+      <label class="vol">細<input type="range" id="volOff" min="0" max="100"></label>
+    </div>
+    <div class="row">
+      <button class="sub" id="beatBtn">4拍子</button>
+      <button class="sub" id="subBtn">細分</button>
+      <button class="sub" id="tapBtn">タップ</button>
+      <button class="sub" id="trainBtn">訓練</button>
+    </div>
+    <div class="row">
+      <button class="step" id="minusBtn" aria-label="テンポを下げる">−</button>
+      <button class="step" id="plusBtn" aria-label="テンポを上げる">+</button>
+    </div>
+    <button class="main" id="startBtn">スタート</button>
+  </div>
+</div>
+
+<!-- ============ チューナー ============ -->
+<div class="page" id="page-tuner">
+  <div class="tuner-top">
+    <div class="piano-wrap">
+      <div class="piano" id="piano"></div>
+      <div class="octRow" id="octRow"><span class="lbl">オクターブ</span></div>
+    </div>
+    <div class="noteBox" id="noteBox">
+      <div class="stringLabel" id="stringLabel"></div>
+      <div class="noteName" id="noteName">—</div>
+    </div>
+    <div class="centsText" id="centsText">マイク停止中</div>
+    <div class="meter">
+      <div class="needle" id="needle"></div>
+      <div class="pivot"></div>
+    </div>
+  </div>
+  <div class="controls">
+    <div class="hint" id="tunerHint"></div>
+    <div class="row">
+      <button class="sub" id="modeBtn">クロマチック</button>
+      <button class="sub" id="refBtn">440Hz</button>
+    </div>
+    <button class="main micbtn" id="tunerBtn" aria-label="マイク オン/オフ">
+      <svg class="ic ic-off" viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
+      <svg class="ic ic-on" viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- ============ 辞典 ============ -->
+<div class="page" id="page-dict">
+  <div class="dict-body m-chord" id="dictBody">
+    <div class="segRow">
+      <button id="segChord">コード</button>
+      <button id="segScale">スケール</button>
+      <button id="segRev">逆引き</button>
+    </div>
+    <div class="fb-scroll" id="fbScroll"></div>
+    <div class="dictrow only-chord">
+      <button id="vPrev">◀</button>
+      <div class="vlabel" id="vLabel">押さえ方 1/1</div>
+      <button id="vNext">▶</button>
+      <button id="playBtn">再生</button>
+      <button id="chToMemo">メモ+</button>
+    </div>
+    <div class="chips only-chord" id="topRow"><span class="clabel">トップ</span></div>
+    <div class="nameArea only-chord">
+      <div class="sugCol">
+        <div class="sugHead">前</div>
+        <div class="sugList" id="sugPrev" style="display:flex;flex-direction:column;gap:6px;"></div>
+      </div>
+      <div class="bigName" id="chordTitle">C</div>
+      <div class="sugCol">
+        <div class="sugHead">次</div>
+        <div class="sugList" id="sugNext" style="display:flex;flex-direction:column;gap:6px;"></div>
+      </div>
+    </div>
+    <div class="chordTones only-chord" id="chordTones"></div>
+    <div class="chips wrapchips only-chord" id="chScales"><span class="clabel">スケール</span></div>
+    <div class="dictrow only-scale">
+      <button id="rootTglBtn">ルート</button>
+      <button id="degBtn">度数</button>
+      <button id="scalePlayBtn">再生</button>
+    </div>
+    <div class="nameArea only-scale">
+      <div class="bigName" id="scaleTitle">C メジャー</div>
+    </div>
+    <div class="chordTones only-scale" id="scaleTones"></div>
+    <div class="chips wrapchips only-scale" id="scDia"><span class="clabel">ダイアトニック</span></div>
+    <div class="dictrow only-rev">
+      <button id="revClear">クリア</button>
+      <button id="revToMemo">メモへ追加</button>
+    </div>
+    <div class="chordTones only-rev" id="revSelText">指板か鍵盤をタップして音を選択</div>
+    <div class="chips wrapchips only-rev" id="revResults"><span class="clabel">候補</span></div>
+    <div class="kb2wrap"><div class="kb2" id="kb2"></div></div>
+    <div class="chips only-chord" id="histRow"><span class="clabel">履歴</span></div>
+  </div>
+</div>
+
+<!-- ============ メモ ============ -->
+<div class="page" id="page-memo">
+  <div class="mv on" id="memoList">
+    <div class="memoHead">
+      <div class="mtitle">スケッチ</div>
+      <button class="mbtn" id="skListEdit">編集</button>
+      <button class="mbtn" id="skNew">新規</button>
+    </div>
+    <div class="sklist" id="skList"></div>
+  </div>
+  <div class="mv" id="memoDetail">
+    <div class="memoHead">
+      <button class="mbtn" id="skBack">←</button>
+      <div class="mtitle" id="skName">名称</div>
+    </div>
+    <div class="dictrow">
+      <button id="tunBtn" style="flex:2">スタンダード</button>
+      <button id="capoMinus">−</button>
+      <div class="vlabel" id="capoVal">カポ 0</div>
+      <button id="capoPlus">＋</button>
+    </div>
+    <div class="dictrow">
+      <button id="skPlayBtn">▶ 再生</button>
+      <input class="minput" id="skBpm" inputmode="numeric" style="flex:0.6" aria-label="BPM">
+      <button id="skMemoBtn">メモ</button>
+      <button id="liveBtn">本番</button>
+    </div>
+    <textarea class="mtext" id="skMemoText" placeholder="スケッチメモ" style="display:none"></textarea>
+    <div class="chordList" id="chordList"></div>
+    <button class="mbtn addBtn" id="chAdd">＋ コード追加</button>
+    <div class="dictrow">
+      <button id="sortBtn">並替</button>
+      <button id="skExport">出力</button>
+      <button id="skImport">取込</button>
+      <button id="skDelete">削除</button>
+    </div>
+    <div class="ioPanel" id="ioPanel">
+      <div class="row" id="ioFmtRow">
+        <button class="mbtn" id="ioFmtTsv" style="flex:1">TSV</button>
+        <button class="mbtn" id="ioFmtMd" style="flex:1">Markdown</button>
+      </div>
+      <div class="row" id="ioScopeRow">
+        <button class="mbtn" id="ioScopeOne" style="flex:1">このスケッチ</button>
+        <button class="mbtn" id="ioScopeAll" style="flex:1">全スケッチ</button>
+      </div>
+      <textarea class="mtext" id="ioText"></textarea>
+      <div class="row">
+        <button class="mbtn" id="ioRun" style="flex:1">読み込み</button>
+        <button class="mbtn" id="ioClose" style="flex:1">閉じる</button>
+      </div>
+      <div class="hint" id="ioStatus"></div>
+    </div>
+  </div>
+  <div class="mv" id="memoEdit">
+    <div class="memoHead">
+      <button class="mbtn" id="edBack">←</button>
+      <div class="mtitle" id="edTitle">コード追加</div>
+    </div>
+    <div class="fb-scroll" id="mFbScroll"></div>
+    <div class="chips wrapchips" id="edCands"><span class="clabel">候補</span></div>
+    <div class="hint" id="edShapeHint"></div>
+    <div class="formrow"><span class="flabel">名前</span><input class="minput" id="edName"></div>
+    <div class="formrow"><span class="flabel">セクション</span><input class="minput" id="edSec"></div>
+    <div class="chips" id="edSecChips"></div>
+    <div class="formrow"><span class="flabel">メモ</span><input class="minput" id="edMemo"></div>
+    <div class="formrow"><span class="flabel">拍数</span><button class="tstep" id="edBtM">−</button><span class="tval" id="edBtV">4</span><button class="tstep" id="edBtP">+</button></div>
+    <div class="dictrow">
+      <button id="edPlay">試聴</button>
+      <button id="edClear">クリア</button>
+    </div>
+    <div class="dictrow" id="edEditRow" style="display:none">
+      <button id="edUp">↑</button>
+      <button id="edDown">↓</button>
+      <button id="edDup">複製</button>
+      <button id="edDel">削除</button>
+    </div>
+    <button class="mbtn addBtn" id="edSave">保存</button>
+  </div>
+</div>
+
+<!-- ============ 練習 ============ -->
+<div class="page" id="page-pr">
+  <div class="dict-body m-pa" id="prBody">
+    <div class="segRow">
+      <button id="segPrA">実演判定</button>
+      <button id="segPrB">度数コール</button>
+      <button id="segPrC">リズム</button>
+      <button id="segPrD">聴音</button>
+      <button id="segPrE">ボーカル</button>
+    </div>
+    <div class="nameArea"><div class="bigName" id="prTitle">C メジャー</div></div>
+    <div class="flashBar only-pa" id="prFlash"></div>
+    <div class="fb-scroll" id="prFbScroll"></div>
+    <div class="pcol only-pa">
+      <div class="statRow" id="paStats"></div>
+      <div class="dictrow"><button id="paReset">リセット</button></div>
+    </div>
+    <div class="pcol only-pb">
+      <div class="prQ" id="prQ">—</div>
+      <div class="prFbk" id="prFbk"></div>
+      <div class="statRow" id="pbStats"></div>
+      <div class="dictrow">
+        <button id="pbPass">パス</button>
+        <button id="pbBoard">指板</button>
+        <button id="pbReset">リセット</button>
+      </div>
+    </div>
+    <div class="pcol only-pc">
+      <div class="dictrow">
+        <button id="rcTgtBtn">表拍</button>
+        <button id="rcTrain">訓練</button>
+      </div>
+      <div class="dictrow">
+        <button class="step" id="rcBpmM" aria-label="テンポを下げる">−</button>
+        <div class="vlabel" id="rcBpmV" style="font-size:24px">120</div>
+        <button class="step" id="rcBpmP" aria-label="テンポを上げる">+</button>
+      </div>
+      <div class="beats" id="rcDots"></div>
+      <div class="rcScore" id="rcScore">—</div>
+      <div class="prFbk" id="rcSub"></div>
+      <div class="prFbk" id="rcFbk"></div>
+      <div class="dictrow">
+        <button id="rcStart">スタート</button>
+        <button id="rcReset">リセット</button>
+      </div>
+      <button class="rcPad" id="rcPad">TAP</button>
+    </div>
+    <div class="pcol only-pd">
+      <div class="prQ" id="etStatus">—</div>
+      <div class="prFbk" id="etFbk"></div>
+      <div class="etGrid" id="etGrid"></div>
+      <div class="statRow" id="etStats"></div>
+      <div class="dictrow">
+        <button id="etPlay">出題</button>
+        <button id="etPass">パス</button>
+        <button id="etReset">リセット</button>
+      </div>
+    </div>
+    <div class="pcol only-pe">
+      <div class="dictrow">
+        <button class="tstep" id="voLoM">−</button>
+        <div class="vlabel" id="voLoV">下限 A2</div>
+        <button class="tstep" id="voLoP">+</button>
+        <button class="tstep" id="voHiM">−</button>
+        <div class="vlabel" id="voHiV">上限 A4</div>
+        <button class="tstep" id="voHiP">+</button>
+      </div>
+      <div class="prQ" id="voTarget">—</div>
+      <div class="vLive" id="voLive"></div>
+      <div class="vBar">
+        <div class="vTrack"></div>
+        <div class="vTickS" style="left:15%"></div>
+        <div class="vTickS" style="left:35%"></div>
+        <div class="vTick"></div>
+        <div class="vTickS" style="left:65%"></div>
+        <div class="vTickS" style="left:85%"></div>
+        <div class="vDot" id="voDot"></div>
+      </div>
+      <div class="prFbk" id="voFbk"></div>
+      <div class="statRow" id="voStats"></div>
+      <div class="dictrow">
+        <button id="voPlay">出題</button>
+        <button id="voPass">パス</button>
+        <button id="voReset">リセット</button>
+      </div>
+    </div>
+    <div class="hint" id="prHint"></div>
+    <div class="controls only-mic">
+      <button class="main micbtn" id="prMicBtn" aria-label="マイク オン/オフ">
+        <svg class="ic ic-off" viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
+        <svg class="ic ic-on" viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- コード選択シート -->
+<div class="sheet" id="typeSheet">
+  <div class="sheetHead">
+    <div class="ttl" id="sheetTitle">C</div>
+    <button id="sheetClose">閉じる</button>
+  </div>
+  <div class="sheetBody" id="sheetBody"></div>
+</div>
+
+<!-- スケール選択シート -->
+<div class="sheet" id="scaleSheet">
+  <div class="sheetHead">
+    <div class="ttl" id="scaleSheetTitle">C メジャー</div>
+    <button id="scaleSheetClose">閉じる</button>
+  </div>
+  <div class="sheetBody" id="scaleSheetBody"></div>
+</div>
+
+<!-- 本番用大画面ビュー -->
+<div class="sheet" id="liveSheet">
+  <div class="sheetHead">
+    <button class="mbtn" id="livePlay">▶</button>
+    <div class="ttl" id="liveTitle">スケッチ</div>
+    <button id="liveClose">閉じる</button>
+  </div>
+  <div class="sheetBody" id="liveBody"></div>
+</div>
+
+<!-- テンポトレーナー設定シート -->
+<div class="sheet" id="trainSheet">
+  <div class="sheetHead">
+    <div class="ttl">テンポトレーナー</div>
+    <button id="trainClose">閉じる</button>
+  </div>
+  <div class="sheetBody">
+    <div class="catTitle">自動加速(開始は現在のBPM)</div>
+    <div class="dictrow" style="padding:0"><button id="trAccBtn" style="min-height:48px">オフ</button></div>
+    <div class="trow"><span class="tlabel">目標BPM</span><button class="tstep" id="trTgtM">−</button><span class="tval" id="trTgtV">140</span><button class="tstep" id="trTgtP">+</button></div>
+    <div class="trow"><span class="tlabel">増分</span><button class="tstep" id="trStepM">−</button><span class="tval" id="trStepV">+2</span><button class="tstep" id="trStepP">+</button></div>
+    <div class="trow"><span class="tlabel">間隔</span><button class="tstep" id="trEvM">−</button><span class="tval" id="trEvV">4小節</span><button class="tstep" id="trEvP">+</button></div>
+    <div class="catTitle">ミュート</div>
+    <div class="dictrow" style="padding:0"><button id="trMuteBtn" style="min-height:48px">なし</button></div>
+    <div class="trow" id="trOnRow"><span class="tlabel">鳴る小節</span><button class="tstep" id="trOnM">−</button><span class="tval" id="trOnV">4</span><button class="tstep" id="trOnP">+</button></div>
+    <div class="trow" id="trOffRow"><span class="tlabel">消える小節</span><button class="tstep" id="trOffM">−</button><span class="tval" id="trOffV">2</span><button class="tstep" id="trOffP">+</button></div>
+    <div class="trow" id="trProbRow"><span class="tlabel">無音の確率</span><button class="tstep" id="trProbM">−</button><span class="tval" id="trProbV">30%</span><button class="tstep" id="trProbP">+</button></div>
+  </div>
+</div>
+
+<!-- 追加先スケッチ選択シート -->
+<div class="sheet" id="memoPickSheet">
+  <div class="sheetHead">
+    <div class="ttl">追加先スケッチ</div>
+    <button id="memoPickClose">閉じる</button>
+  </div>
+  <div class="sheetBody" id="memoPickBody"></div>
+</div>
+
+<!-- ============ タブ ============ -->
+<div class="tabs">
+  <button class="tab" id="tab-metro">メトロノーム</button>
+  <button class="tab" id="tab-tuner">チューナー</button>
+  <button class="tab" id="tab-dict">辞典</button>
+  <button class="tab" id="tab-memo">メモ</button>
+  <button class="tab" id="tab-pr">練習</button>
+</div>
+
+<script>
+"use strict";
+
+/* ================= 共通 ================= */
+const store = {
+  get(key, fallback) {
+    try { const v = localStorage.getItem(key); return v === null ? fallback : v; }
+    catch (e) { return fallback; }
+  },
+  set(key, value) { try { localStorage.setItem(key, value); } catch (e) {} }
+};
+
+let audioCtx = null;
+function ensureAudio() {
+  if (!audioCtx) {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    audioCtx = new AC();
+  }
+  return audioCtx.resume();
+}
+
+let wakeLock = null;
+async function acquireWake() {
+  try { wakeLock = await navigator.wakeLock.request("screen"); } catch (e) {}
+}
+function releaseWake() {
+  if (wakeLock) { wakeLock.release().catch(() => {}); wakeLock = null; }
+}
+
+/* シートの開閉(Android戻るボタン対応) */
+function sheetClosed(el) {
+  if (el === liveSheet) {
+    liveOpen = false;
+    liveRowEls = [];
+    if (skTimer === null) releaseWake();
+  }
+}
+function openSheet(el) {
+  el.classList.add("open");
+  try { history.pushState({ gtSheet: 1 }, ""); } catch (e) {}
+}
+function closeSheet(el) {
+  if (!el.classList.contains("open")) return;
+  if (history.state && history.state.gtSheet) {
+    history.back();
+  } else {
+    el.classList.remove("open");
+    sheetClosed(el);
+  }
+}
+window.addEventListener("popstate", () => {
+  const open = document.querySelector(".sheet.open");
+  if (!open) return;
+  open.classList.remove("open");
+  sheetClosed(open);
+});
+
+/* 2段階確認(タップ→確認表示→再タップで実行) */
+const armState = new Map();
+function armAction(btn, armedLabel, fn) {
+  const st = armState.get(btn);
+  if (st) {
+    clearTimeout(st.to);
+    armState.delete(btn);
+    btn.textContent = st.org;
+    btn.classList.remove("on");
+    fn();
+    return;
+  }
+  const org = btn.textContent;
+  btn.textContent = armedLabel;
+  btn.classList.add("on");
+  const to = setTimeout(() => {
+    btn.textContent = org;
+    btn.classList.remove("on");
+    armState.delete(btn);
+  }, 2500);
+  armState.set(btn, { org: org, to: to });
+}
+
+const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+
+const voices = {};
+async function noteOn(e, midi, el) {
+  e.preventDefault();
+  await ensureAudio();
+  if (voices[e.pointerId]) noteOffId(e.pointerId);
+  const g = audioCtx.createGain();
+  const t = audioCtx.currentTime;
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(0.3, t + 0.02);
+  g.connect(audioCtx.destination);
+  const base = refPitch * Math.pow(2, (midi - 69) / 12);
+  const parts = [[1, 1], [2, 0.45], [3, 0.22]];
+  const oscs = parts.map(p => {
+    const o = audioCtx.createOscillator();
+    o.type = "sine";
+    o.frequency.value = base * p[0];
+    const pg = audioCtx.createGain();
+    pg.gain.value = p[1];
+    o.connect(pg).connect(g);
+    o.start();
+    return o;
+  });
+  voices[e.pointerId] = { oscs: oscs, g: g, el: el };
+  el.classList.add("press");
+  try { e.target.setPointerCapture(e.pointerId); } catch (err) {}
+}
+function noteOff(e) { noteOffId(e.pointerId); }
+function noteOffId(id) {
+  const v = voices[id];
+  if (!v) return;
+  delete voices[id];
+  const t = audioCtx.currentTime;
+  v.g.gain.cancelScheduledValues(t);
+  v.g.gain.setValueAtTime(Math.max(v.g.gain.value, 0.0001), t);
+  v.g.gain.exponentialRampToValueAtTime(0.0001, t + 0.08);
+  v.oscs.forEach(o => o.stop(t + 0.1));
+  v.el.classList.remove("press");
+}
+function stopAllVoices() { for (const id in voices) noteOffId(id); }
+
+function playPluck(midi, when, vol) {
+  const freq = refPitch * Math.pow(2, (midi - 69) / 12);
+  const sr = audioCtx.sampleRate;
+  const dur = 1.7;
+  const n = Math.floor(sr * dur);
+  const buf = audioCtx.createBuffer(1, n, sr);
+  const data = buf.getChannelData(0);
+  const N = Math.max(2, Math.round(sr / freq));
+  for (let i = 0; i < N; i++) data[i] = Math.random() * 2 - 1;
+  for (let i = N; i < n; i++) {
+    data[i] = 0.997 * 0.5 * (data[i - N] + data[i - N + 1]);
+  }
+  const src = audioCtx.createBufferSource();
+  src.buffer = buf;
+  const g = audioCtx.createGain();
+  g.gain.value = vol;
+  src.connect(g).connect(audioCtx.destination);
+  src.start(when);
+}
+
+/* ================= タブ ================= */
+const pages = {
+  metro: document.getElementById("page-metro"),
+  tuner: document.getElementById("page-tuner"),
+  dict: document.getElementById("page-dict"),
+  memo: document.getElementById("page-memo"),
+  pr: document.getElementById("page-pr")
+};
+const tabs = {
+  metro: document.getElementById("tab-metro"),
+  tuner: document.getElementById("tab-tuner"),
+  dict: document.getElementById("tab-dict"),
+  memo: document.getElementById("tab-memo"),
+  pr: document.getElementById("tab-pr")
+};
+function showTab(name) {
+  if (!pages[name]) name = "metro";
+  if (name !== "metro" && playing) stopMetro();
+  if (name !== "tuner" && micOn) stopTuner();
+  if (name !== "memo") stopSkPlay();
+  if (name !== "pr") { stopPrMic(); rcStop(); }
+  stopAllVoices();
+  for (const key in pages) {
+    pages[key].classList.toggle("active", key === name);
+    tabs[key].classList.toggle("active", key === name);
+  }
+  store.set("gt.tab", name);
+}
+tabs.metro.addEventListener("click", () => showTab("metro"));
+tabs.tuner.addEventListener("click", () => showTab("tuner"));
+tabs.dict.addEventListener("click", () => showTab("dict"));
+tabs.memo.addEventListener("click", () => showTab("memo"));
+tabs.pr.addEventListener("click", () => showTab("pr"));
+
+/* ================= メトロノーム ================= */
+const BPM_MIN = 30, BPM_MAX = 260;
+const BEAT_OPTIONS = [2, 3, 4, 5, 7, 11];
+
+let bpm = parseFloat(store.get("gt.bpm", "120")) || 120;
+let beatsPerBar = parseInt(store.get("gt.beats", "4"), 10);
+if (!BEAT_OPTIONS.includes(beatsPerBar)) beatsPerBar = 4;
+let subdivMode = parseInt(store.get("gt.subdiv", store.get("gt.off", "0") === "1" ? "1" : "0"), 10);
+if (!(subdivMode >= 0 && subdivMode <= 4)) subdivMode = 0;
+const SUB_POS = [[], [0.5], [0.25, 0.5, 0.75], [1 / 3, 2 / 3], [2 / 3]];
+const SUB_LABELS = ["細分", "8分", "16分", "3連", "シャッフル"];
+function loadAcc(n) {
+  let s = store.get("gt.acc" + n, "");
+  if (s.length !== n || /[^01]/.test(s)) s = "1" + "0".repeat(n - 1);
+  return s.split("").map(c => c === "1");
+}
+let accents = loadAcc(beatsPerBar);
+function saveAcc() { store.set("gt.acc" + beatsPerBar, accents.map(b => b ? "1" : "0").join("")); }
+
+/* テンポトレーナー設定 */
+let tr = { acc: 0, target: 140, step: 2, every: 4, mute: 0, on: 4, off: 2, prob: 30 };
+try {
+  const t = JSON.parse(store.get("gt.tr", "null"));
+  if (t && typeof t === "object") tr = Object.assign(tr, t);
+} catch (e) {}
+tr.acc = tr.acc === 1 ? 1 : 0;
+tr.target = Math.min(260, Math.max(30, parseInt(tr.target, 10) || 140));
+tr.step = Math.min(20, Math.max(1, parseInt(tr.step, 10) || 2));
+tr.every = Math.min(16, Math.max(1, parseInt(tr.every, 10) || 4));
+tr.mute = [0, 1, 2].includes(tr.mute) ? tr.mute : 0;
+tr.on = Math.min(16, Math.max(1, parseInt(tr.on, 10) || 4));
+tr.off = Math.min(16, Math.max(1, parseInt(tr.off, 10) || 2));
+tr.prob = Math.min(95, Math.max(5, parseInt(tr.prob, 10) || 30));
+function saveTr() { store.set("gt.tr", JSON.stringify(tr)); }
+function trainerActive() { return tr.acc === 1 || tr.mute > 0; }
+let trainBpm = 0;
+let barIndex = 0;
+let barMuted = false;
+let volMain = parseInt(store.get("gt.volMain", "100"), 10);
+let volOff = parseInt(store.get("gt.volOff", "60"), 10);
+if (isNaN(volMain)) volMain = 100;
+if (isNaN(volOff)) volOff = 60;
+
+let playing = false;
+let editing = false;
+let nextNoteTime = 0;
+let currentBeat = 0;
+let timerId = null;
+
+const bpmView = document.getElementById("bpmView");
+const beatsEl = document.getElementById("beats");
+const startBtn = document.getElementById("startBtn");
+const beatBtn = document.getElementById("beatBtn");
+const subBtn = document.getElementById("subBtn");
+const volMainEl = document.getElementById("volMain");
+const volOffEl = document.getElementById("volOff");
+
+function formatBpm(v) { return Number.isInteger(v) ? String(v) : v.toFixed(1); }
+function renderBpm() {
+  bpmView.textContent = formatBpm(bpm);
+  store.set("gt.bpm", bpm);
+  if (typeof renderRcBpm === "function") renderRcBpm();
+}
+let dotEls = [];
+function renderDots() {
+  beatsEl.innerHTML = "";
+  dotEls = [];
+  for (let i = 0; i < beatsPerBar; i++) {
+    const wrap = document.createElement("div");
+    wrap.className = "dothit";
+    const d = document.createElement("div");
+    d.className = "dot" + (accents[i] ? " accent" : "");
+    wrap.appendChild(d);
+    wrap.addEventListener("click", () => {
+      accents[i] = !accents[i];
+      saveAcc();
+      d.classList.toggle("accent", accents[i]);
+    });
+    beatsEl.appendChild(wrap);
+    dotEls.push(d);
+  }
+}
+function renderSub() {
+  subBtn.textContent = SUB_LABELS[subdivMode];
+  subBtn.classList.toggle("on", subdivMode > 0);
+}
+function setBpm(v) {
+  if (playing && tr.acc === 1) return; /* 加速中は手動変更無効 */
+  v = Math.round(v * 10) / 10;
+  if (isNaN(v)) return;
+  bpm = Math.min(BPM_MAX, Math.max(BPM_MIN, v));
+  renderBpm();
+}
+function playClick(time, kind) {
+  let freq, vol, dur;
+  if (kind === "accent")    { freq = 1600; vol = volMain; dur = 0.05; }
+  else if (kind === "main") { freq = 1000; vol = volMain; dur = 0.05; }
+  else                      { freq = 2000; vol = volOff;  dur = 0.03; }
+  const peak = 0.5 * (vol / 100);
+  if (peak <= 0.0002) return;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.frequency.value = freq;
+  gain.gain.setValueAtTime(0.0001, time);
+  gain.gain.exponentialRampToValueAtTime(peak, time + 0.001);
+  gain.gain.exponentialRampToValueAtTime(0.0001, time + dur);
+  osc.connect(gain).connect(audioCtx.destination);
+  osc.start(time);
+  osc.stop(time + dur + 0.01);
+}
+function onBarStart() {
+  if (tr.mute === 1) {
+    const cyc = tr.on + tr.off;
+    barMuted = (barIndex % cyc) >= tr.on;
+  } else if (tr.mute === 2) {
+    barMuted = Math.random() * 100 < tr.prob;
+  } else {
+    barMuted = false;
+  }
+  if (tr.acc === 1 && barIndex > 0 && barIndex % tr.every === 0) {
+    if (trainBpm < tr.target) trainBpm = Math.min(tr.target, trainBpm + tr.step);
+    else if (trainBpm > tr.target) trainBpm = Math.max(tr.target, trainBpm - tr.step);
+    scheduleBpmView(trainBpm, nextNoteTime);
+  }
+  barIndex++;
+}
+function scheduleBpmView(v, time) {
+  const delay = Math.max(0, (time - audioCtx.currentTime) * 1000);
+  setTimeout(() => {
+    if (playing && tr.acc === 1) bpmView.textContent = formatBpm(v);
+  }, delay);
+}
+function scheduler() {
+  while (nextNoteTime < audioCtx.currentTime + 0.12) {
+    const beat = currentBeat;
+    if (beat === 0) onBarStart();
+    const secPerBeat = 60 / (playing && tr.acc === 1 ? trainBpm : bpm);
+    if (!barMuted) {
+      playClick(nextNoteTime, accents[beat] ? "accent" : "main");
+      for (const p of SUB_POS[subdivMode]) {
+        playClick(nextNoteTime + secPerBeat * p, "off");
+      }
+    }
+    scheduleVisual(beat, nextNoteTime);
+    nextNoteTime += secPerBeat;
+    currentBeat = (currentBeat + 1) % beatsPerBar;
+  }
+}
+function scheduleVisual(beat, time) {
+  const delay = Math.max(0, (time - audioCtx.currentTime) * 1000);
+  setTimeout(() => {
+    if (!playing) return;
+    for (let i = 0; i < dotEls.length; i++) {
+      dotEls[i].classList.toggle("on", i === beat);
+    }
+  }, delay);
+}
+async function startMetro() {
+  await ensureAudio();
+  playing = true;
+  currentBeat = 0;
+  barIndex = 0;
+  barMuted = false;
+  trainBpm = bpm;
+  nextNoteTime = audioCtx.currentTime + 0.08;
+  timerId = setInterval(scheduler, 25);
+  startBtn.textContent = "ストップ";
+  startBtn.classList.add("playing");
+  acquireWake();
+}
+function stopMetro() {
+  playing = false;
+  clearInterval(timerId);
+  startBtn.textContent = "スタート";
+  startBtn.classList.remove("playing");
+  dotEls.forEach(d => d.classList.remove("on"));
+  renderBpm();
+  releaseWake();
+}
+startBtn.addEventListener("click", () => (playing ? stopMetro() : startMetro()));
+
+bpmView.addEventListener("click", () => {
+  if (editing) return;
+  if (playing && tr.acc === 1) return;
+  editing = true;
+  const input = document.createElement("input");
+  input.type = "text";
+  input.inputMode = "decimal";
+  input.className = "bpm-input";
+  input.value = formatBpm(bpm);
+  bpmView.style.display = "none";
+  bpmView.parentNode.insertBefore(input, bpmView);
+  input.focus();
+  input.select();
+  const commit = () => {
+    const v = parseFloat(input.value.replace(",", "."));
+    if (!isNaN(v)) setBpm(v);
+    input.remove();
+    bpmView.style.display = "";
+    editing = false;
+  };
+  input.addEventListener("blur", commit);
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") input.blur(); });
+});
+
+function holdButton(el, step) {
+  let delayTimer = null, repeatTimer = null;
+  const change = () => setBpm(bpm + step);
+  const down = () => {
+    change();
+    delayTimer = setTimeout(() => { repeatTimer = setInterval(change, 60); }, 400);
+  };
+  const up = () => { clearTimeout(delayTimer); clearInterval(repeatTimer); };
+  el.addEventListener("pointerdown", down);
+  el.addEventListener("pointerup", up);
+  el.addEventListener("pointercancel", up);
+  el.addEventListener("pointerleave", up);
+  el.addEventListener("contextmenu", e => e.preventDefault());
+  el.addEventListener("click", e => e.preventDefault());
+}
+holdButton(document.getElementById("minusBtn"), -1);
+holdButton(document.getElementById("plusBtn"), +1);
+
+let taps = [];
+document.getElementById("tapBtn").addEventListener("click", () => {
+  const now = performance.now();
+  if (taps.length && now - taps[taps.length - 1] > 2000) taps = [];
+  taps.push(now);
+  if (taps.length >= 2) {
+    const intervals = [];
+    for (let i = 1; i < taps.length; i++) intervals.push(taps[i] - taps[i - 1]);
+    const recent = intervals.slice(-4);
+    const avg = recent.reduce((a, b) => a + b, 0) / recent.length;
+    setBpm(Math.round(60000 / avg));
+  }
+  if (taps.length > 8) taps = taps.slice(-8);
+});
+
+beatBtn.addEventListener("click", () => {
+  const i = BEAT_OPTIONS.indexOf(beatsPerBar);
+  beatsPerBar = BEAT_OPTIONS[(i + 1) % BEAT_OPTIONS.length];
+  store.set("gt.beats", beatsPerBar);
+  beatBtn.textContent = beatsPerBar + "拍子";
+  currentBeat = 0;
+  accents = loadAcc(beatsPerBar);
+  renderDots();
+});
+subBtn.addEventListener("click", () => {
+  subdivMode = (subdivMode + 1) % SUB_POS.length;
+  store.set("gt.subdiv", subdivMode);
+  renderSub();
+});
+volMainEl.value = volMain;
+volOffEl.value = volOff;
+volMainEl.addEventListener("input", () => { volMain = parseInt(volMainEl.value, 10); store.set("gt.volMain", volMain); });
+volOffEl.addEventListener("input", () => { volOff = parseInt(volOffEl.value, 10); store.set("gt.volOff", volOff); });
+
+/* ---- テンポトレーナーUI ---- */
+const trainSheet = document.getElementById("trainSheet");
+const trainBtn = document.getElementById("trainBtn");
+const metroHint = document.getElementById("metroHint");
+function renderMetroHint() {
+  const parts = [];
+  if (tr.acc === 1) parts.push("加速 →" + tr.target + " (+" + tr.step + "/" + tr.every + "小節)");
+  if (tr.mute === 1) parts.push("ミュート " + tr.on + "/" + tr.off);
+  if (tr.mute === 2) parts.push("ミュート 乱" + tr.prob + "%");
+  metroHint.textContent = parts.length ? parts.join(" ・ ") : "拍ドットをタップでアクセント切替";
+}
+function renderTrain() {
+  const accBtn = document.getElementById("trAccBtn");
+  accBtn.textContent = tr.acc === 1 ? "オン" : "オフ";
+  accBtn.classList.toggle("on", tr.acc === 1);
+  document.getElementById("trTgtV").textContent = tr.target;
+  document.getElementById("trStepV").textContent = "+" + tr.step;
+  document.getElementById("trEvV").textContent = tr.every + "小節";
+  const muteBtn = document.getElementById("trMuteBtn");
+  muteBtn.textContent = ["なし", "パターン", "ランダム"][tr.mute];
+  muteBtn.classList.toggle("on", tr.mute > 0);
+  document.getElementById("trOnRow").style.display = tr.mute === 1 ? "flex" : "none";
+  document.getElementById("trOffRow").style.display = tr.mute === 1 ? "flex" : "none";
+  document.getElementById("trProbRow").style.display = tr.mute === 2 ? "flex" : "none";
+  document.getElementById("trOnV").textContent = tr.on;
+  document.getElementById("trOffV").textContent = tr.off;
+  document.getElementById("trProbV").textContent = tr.prob + "%";
+  trainBtn.classList.toggle("on", trainerActive());
+  renderMetroHint();
+}
+function bindTrStep(mId, pId, get, set, step, min, max) {
+  const apply = (d) => {
+    set(Math.min(max, Math.max(min, get() + d)));
+    saveTr();
+    renderTrain();
+  };
+  document.getElementById(mId).addEventListener("click", () => apply(-step));
+  document.getElementById(pId).addEventListener("click", () => apply(step));
+}
+bindTrStep("trTgtM", "trTgtP", () => tr.target, v => tr.target = v, 5, 30, 260);
+bindTrStep("trStepM", "trStepP", () => tr.step, v => tr.step = v, 1, 1, 20);
+bindTrStep("trEvM", "trEvP", () => tr.every, v => tr.every = v, 1, 1, 16);
+bindTrStep("trOnM", "trOnP", () => tr.on, v => tr.on = v, 1, 1, 16);
+bindTrStep("trOffM", "trOffP", () => tr.off, v => tr.off = v, 1, 1, 16);
+bindTrStep("trProbM", "trProbP", () => tr.prob, v => tr.prob = v, 5, 5, 95);
+document.getElementById("trAccBtn").addEventListener("click", () => {
+  tr.acc = tr.acc === 1 ? 0 : 1;
+  saveTr();
+  renderTrain();
+});
+document.getElementById("trMuteBtn").addEventListener("click", () => {
+  tr.mute = (tr.mute + 1) % 3;
+  saveTr();
+  renderTrain();
+});
+trainBtn.addEventListener("click", () => {
+  renderTrain();
+  openSheet(trainSheet);
+});
+document.getElementById("trainClose").addEventListener("click", () => closeSheet(trainSheet));
+
+/* ================= チューナー ================= */
+const TUNER_MODES = ["クロマチック", "ギター", "ベース"];
+const GUITAR_TARGETS = [40, 45, 50, 55, 59, 64];
+const BASS_TARGETS = [28, 33, 38, 43];
+const IN_TUNE_CENTS = 5;
+const WHITE_PC = [0, 2, 4, 5, 7, 9, 11];
+const OCT_MIN = 1, OCT_MAX = 6;
+
+let tunerMode = parseInt(store.get("gt.tmode", "0"), 10);
+if (![0, 1, 2].includes(tunerMode)) tunerMode = 0;
+let refPitch = parseInt(store.get("gt.ref", "440"), 10);
+if (refPitch !== 442) refPitch = 440;
+let pianoOct = parseInt(store.get("gt.poct", "4"), 10);
+if (isNaN(pianoOct) || pianoOct < OCT_MIN || pianoOct > OCT_MAX) pianoOct = 4;
+
+let micOn = false;
+let stream = null;
+let analyser = null;
+let micSource = null;
+let tunerTimer = null;
+let lastGoodTime = 0;
+let dispCents = null;
+let prevTarget = null;
+const pitchBuf = new Float32Array(4096);
+
+const noteBox = document.getElementById("noteBox");
+const noteNameEl = document.getElementById("noteName");
+const stringLabelEl = document.getElementById("stringLabel");
+const centsTextEl = document.getElementById("centsText");
+const needleEl = document.getElementById("needle");
+const modeBtn = document.getElementById("modeBtn");
+const refBtn = document.getElementById("refBtn");
+const tunerBtn = document.getElementById("tunerBtn");
+const tunerHint = document.getElementById("tunerHint");
+
+function buildKeyboard(container, nOct, baseMidiFn, downOverride) {
+  const keys = [], dots = [];
+  const totalWhite = 7 * nOct;
+  const wk = 100 / totalWhite;
+  let wIndex = 0;
+  const count = 12 * nOct;
+  for (let i = 0; i < count; i++) {
+    const pc = i % 12;
+    const isWhite = WHITE_PC.includes(pc);
+    const k = document.createElement("div");
+    if (isWhite) {
+      k.className = "wkey";
+      k.style.left = (wIndex * wk) + "%";
+      k.style.width = wk + "%";
+      wIndex++;
+    } else {
+      k.className = "bkey";
+      k.style.left = (wIndex * wk - wk * 0.3) + "%";
+      k.style.width = (wk * 0.6) + "%";
+    }
+    const d = document.createElement("div");
+    d.className = "kdot";
+    k.appendChild(d);
+    container.appendChild(k);
+    keys.push(k);
+    dots.push(d);
+    k.addEventListener("pointerdown", (e) => {
+      if (downOverride && downOverride(e, i, k)) return;
+      noteOn(e, baseMidiFn(i), k);
+    });
+    k.addEventListener("pointerup", noteOff);
+    k.addEventListener("pointercancel", noteOff);
+    k.addEventListener("lostpointercapture", noteOff);
+    k.addEventListener("contextmenu", (e) => e.preventDefault());
+  }
+  return { keys: keys, dots: dots };
+}
+
+const tunerKb = buildKeyboard(
+  document.getElementById("piano"), 1,
+  (i) => (pianoOct + 1) * 12 + i
+);
+
+const octBtns = {};
+(function buildOctRow() {
+  const row = document.getElementById("octRow");
+  for (let o = OCT_MIN; o <= OCT_MAX; o++) {
+    const b = document.createElement("button");
+    b.className = "octBtn";
+    b.textContent = o;
+    b.addEventListener("click", () => { pianoOct = o; store.set("gt.poct", o); renderOctRow(); });
+    row.appendChild(b);
+    octBtns[o] = b;
+  }
+})();
+function renderOctRow() {
+  for (let o = OCT_MIN; o <= OCT_MAX; o++) octBtns[o].classList.toggle("on", o === pianoOct);
+}
+
+let litKey = null;
+function highlightKey(pc, octave) {
+  if (litKey !== null) {
+    tunerKb.keys[litKey].classList.remove("lit");
+    tunerKb.dots[litKey].textContent = "";
+  }
+  litKey = null;
+  if (pc === null) return;
+  tunerKb.keys[pc].classList.add("lit");
+  tunerKb.dots[pc].textContent = octave;
+  litKey = pc;
+}
+
+function detectPitch(buf, sampleRate) {
+  const SIZE = buf.length;
+  const W = 2048;
+  let rms = 0;
+  for (let i = 0; i < SIZE; i++) rms += buf[i] * buf[i];
+  rms = Math.sqrt(rms / SIZE);
+  if (rms < 0.008) return -1;
+  const minTau = Math.max(2, Math.floor(sampleRate / 1600));
+  const tauMax = Math.min(Math.floor(sampleRate / 35), W - 1);
+  const d = new Float32Array(tauMax + 1);
+  for (let tau = 1; tau <= tauMax; tau++) {
+    let sum = 0;
+    for (let i = 0; i < W; i++) {
+      const diff = buf[i] - buf[i + tau];
+      sum += diff * diff;
+    }
+    d[tau] = sum;
+  }
+  const cmnd = new Float32Array(tauMax + 1);
+  cmnd[0] = 1;
+  let runningSum = 0;
+  for (let tau = 1; tau <= tauMax; tau++) {
+    runningSum += d[tau];
+    cmnd[tau] = runningSum === 0 ? 1 : d[tau] * tau / runningSum;
+  }
+  let tauEstimate = -1;
+  for (let tau = minTau; tau <= tauMax; tau++) {
+    if (cmnd[tau] < 0.12) {
+      while (tau + 1 <= tauMax && cmnd[tau + 1] < cmnd[tau]) tau++;
+      tauEstimate = tau;
+      break;
+    }
+  }
+  if (tauEstimate === -1) {
+    let minVal = 1, minIdx = -1;
+    for (let tau = minTau; tau <= tauMax; tau++) {
+      if (cmnd[tau] < minVal) { minVal = cmnd[tau]; minIdx = tau; }
+    }
+    if (minVal < 0.35) tauEstimate = minIdx;
+    else return -1;
+  }
+  let betterTau = tauEstimate;
+  if (tauEstimate > 1 && tauEstimate < tauMax) {
+    const s0 = cmnd[tauEstimate - 1];
+    const s1 = cmnd[tauEstimate];
+    const s2 = cmnd[tauEstimate + 1];
+    const denom = s0 + s2 - 2 * s1;
+    if (denom !== 0) betterTau = tauEstimate + (s0 - s2) / (2 * denom);
+  }
+  return sampleRate / betterTau;
+}
+
+function processFreq(freq) {
+  const midi = 69 + 12 * Math.log2(freq / refPitch);
+  let target, label = "";
+  if (tunerMode === 0) {
+    target = Math.round(midi);
+  } else {
+    const targets = tunerMode === 1 ? GUITAR_TARGETS : BASS_TARGETS;
+    let best = 0, bestDiff = Infinity;
+    for (let i = 0; i < targets.length; i++) {
+      const diff = Math.abs(midi - targets[i]);
+      if (diff < bestDiff) { bestDiff = diff; best = i; }
+    }
+    target = targets[best];
+    label = (targets.length - best) + "弦";
+  }
+  let cents = (midi - target) * 100;
+  if (target !== prevTarget) { dispCents = cents; prevTarget = target; }
+  else { dispCents = dispCents * 0.5 + cents * 0.5; }
+  const pc = ((target % 12) + 12) % 12;
+  const octave = Math.floor(target / 12) - 1;
+  noteNameEl.textContent = NOTE_NAMES[pc] + octave;
+  stringLabelEl.textContent = label;
+  const rounded = Math.round(dispCents);
+  centsTextEl.textContent = (rounded > 0 ? "+" : "") + rounded + " cent";
+  const clamped = Math.max(-50, Math.min(50, dispCents));
+  needleEl.style.visibility = "visible";
+  needleEl.style.transform = "rotate(" + (clamped * 0.9) + "deg)";
+  noteBox.classList.toggle("ok", Math.abs(dispCents) <= IN_TUNE_CENTS);
+  highlightKey(pc, octave);
+}
+function showIdle(message) {
+  noteNameEl.textContent = "—";
+  stringLabelEl.textContent = "";
+  centsTextEl.textContent = message || "音を検出中…";
+  needleEl.style.visibility = "hidden";
+  noteBox.classList.remove("ok");
+  highlightKey(null);
+  dispCents = null;
+  prevTarget = null;
+}
+function tunerLoop() {
+  analyser.getFloatTimeDomainData(pitchBuf);
+  const freq = detectPitch(pitchBuf, audioCtx.sampleRate);
+  if (freq > 0) {
+    lastGoodTime = performance.now();
+    processFreq(freq);
+  } else if (performance.now() - lastGoodTime > 700) {
+    showIdle();
+  }
+}
+async function startTuner() {
+  tunerHint.textContent = "";
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    tunerHint.textContent = "この環境ではマイクを使用できません。公開URLで開いてください。";
+    return;
+  }
+  await ensureAudio();
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
+    });
+  } catch (e) {
+    tunerHint.textContent = "マイクを使用できません。ブラウザの設定でマイクを許可してください。";
+    return;
+  }
+  micSource = audioCtx.createMediaStreamSource(stream);
+  analyser = audioCtx.createAnalyser();
+  analyser.fftSize = 4096;
+  micSource.connect(analyser);
+  micOn = true;
+  lastGoodTime = 0;
+  showIdle();
+  tunerTimer = setInterval(tunerLoop, 60);
+  tunerBtn.classList.add("playing");
+  acquireWake();
+}
+function stopTuner() {
+  micOn = false;
+  clearInterval(tunerTimer);
+  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+  if (micSource) { micSource.disconnect(); micSource = null; }
+  analyser = null;
+  tunerBtn.classList.remove("playing");
+  showIdle("マイク停止中");
+  releaseWake();
+}
+tunerBtn.addEventListener("click", () => (micOn ? stopTuner() : startTuner()));
+function renderMode() { modeBtn.textContent = TUNER_MODES[tunerMode]; }
+modeBtn.addEventListener("click", () => {
+  tunerMode = (tunerMode + 1) % TUNER_MODES.length;
+  store.set("gt.tmode", tunerMode);
+  prevTarget = null;
+  renderMode();
+});
+function renderRef() { refBtn.textContent = refPitch + "Hz"; }
+refBtn.addEventListener("click", () => {
+  refPitch = refPitch === 440 ? 442 : 440;
+  store.set("gt.ref", refPitch);
+  renderRef();
+});
+
+/* ================= 辞典: コード ================= */
+const CHORD_TYPES = [
+  { id: "",       l: "",        cat: "基本", fam: "maj", iv: [[0,1,1],[4,3,1],[7,5,0]] },
+  { id: "m",      l: "m",       cat: "基本", fam: "min", iv: [[0,1,1],[3,3,1],[7,5,0]] },
+  { id: "dim",    l: "dim",     cat: "基本", fam: "dim", iv: [[0,1,1],[3,3,1],[6,5,1]] },
+  { id: "aug",    l: "aug",     cat: "基本", fam: "aug", iv: [[0,1,1],[4,3,1],[8,5,1]] },
+  { id: "b5",     l: "(♭5)",    cat: "基本", fam: "maj", iv: [[0,1,1],[4,3,1],[6,5,1]] },
+  { id: "m#5",    l: "m#5",     cat: "基本", fam: "min", iv: [[0,1,1],[3,3,1],[8,5,1]] },
+  { id: "sus4",   l: "sus4",    cat: "基本", fam: "sus", iv: [[0,1,1],[5,4,1],[7,5,1]] },
+  { id: "sus2",   l: "sus2",    cat: "基本", fam: "sus", iv: [[0,1,1],[2,2,1],[7,5,1]] },
+  { id: "5",      l: "5",       cat: "基本", fam: "maj", iv: [[0,1,1],[7,5,1]] },
+  { id: "add4",   l: "add4",    cat: "基本", fam: "maj", iv: [[0,1,1],[4,3,1],[5,4,1],[7,5,0]] },
+  { id: "6",      l: "6",       cat: "シックス", fam: "maj", iv: [[0,1,1],[4,3,1],[7,5,0],[9,6,1]] },
+  { id: "m6",     l: "m6",      cat: "シックス", fam: "min", iv: [[0,1,1],[3,3,1],[7,5,0],[9,6,1]] },
+  { id: "69",     l: "6/9",     cat: "シックス", fam: "maj", iv: [[0,1,1],[4,3,1],[7,5,0],[9,6,1],[2,9,1]] },
+  { id: "m69",    l: "m6/9",    cat: "シックス", fam: "min", iv: [[0,1,1],[3,3,1],[7,5,0],[9,6,1],[2,9,1]] },
+  { id: "7",      l: "7",       cat: "セブンス", fam: "dom", iv: [[0,1,1],[4,3,1],[7,5,0],[10,7,1]] },
+  { id: "maj7",   l: "maj7",    cat: "セブンス", fam: "maj", iv: [[0,1,1],[4,3,1],[7,5,0],[11,7,1]] },
+  { id: "m7",     l: "m7",      cat: "セブンス", fam: "min", iv: [[0,1,1],[3,3,1],[7,5,0],[10,7,1]] },
+  { id: "mMaj7",  l: "mMaj7",   cat: "セブンス", fam: "min", iv: [[0,1,1],[3,3,1],[7,5,0],[11,7,1]] },
+  { id: "dim7",   l: "dim7",    cat: "セブンス", fam: "dim", iv: [[0,1,1],[3,3,1],[6,5,1],[9,7,1]] },
+  { id: "dimM7",  l: "dimMaj7", cat: "セブンス", fam: "dim", iv: [[0,1,1],[3,3,1],[6,5,1],[11,7,1]] },
+  { id: "m7b5",   l: "m7♭5",    cat: "セブンス", fam: "hdim", iv: [[0,1,1],[3,3,1],[6,5,1],[10,7,1]] },
+  { id: "m7#5",   l: "m7#5",    cat: "セブンス", fam: "min", iv: [[0,1,1],[3,3,1],[8,5,1],[10,7,1]] },
+  { id: "7#5",    l: "7#5",     cat: "セブンス", fam: "dom", iv: [[0,1,1],[4,3,1],[8,5,1],[10,7,1]] },
+  { id: "maj7#5", l: "maj7#5",  cat: "セブンス", fam: "maj", iv: [[0,1,1],[4,3,1],[8,5,1],[11,7,1]] },
+  { id: "7b5",    l: "7♭5",     cat: "セブンス", fam: "dom", iv: [[0,1,1],[4,3,1],[6,5,1],[10,7,1]] },
+  { id: "maj7b5", l: "maj7♭5",  cat: "セブンス", fam: "maj", iv: [[0,1,1],[4,3,1],[6,5,1],[11,7,1]] },
+  { id: "7sus4",  l: "7sus4",   cat: "セブンス", fam: "dom", iv: [[0,1,1],[5,4,1],[7,5,0],[10,7,1]] },
+  { id: "7sus2",  l: "7sus2",   cat: "セブンス", fam: "dom", iv: [[0,1,1],[2,2,1],[7,5,0],[10,7,1]] },
+  { id: "add9",   l: "add9",    cat: "ナインス", fam: "maj", iv: [[0,1,1],[4,3,1],[7,5,0],[2,9,1]] },
+  { id: "madd9",  l: "madd9",   cat: "ナインス", fam: "min", iv: [[0,1,1],[3,3,1],[7,5,0],[2,9,1]] },
+  { id: "9",      l: "9",       cat: "ナインス", fam: "dom", iv: [[0,1,1],[4,3,1],[7,5,0],[10,7,1],[2,9,1]] },
+  { id: "maj9",   l: "maj9",    cat: "ナインス", fam: "maj", iv: [[0,1,1],[4,3,1],[7,5,0],[11,7,1],[2,9,1]] },
+  { id: "m9",     l: "m9",      cat: "ナインス", fam: "min", iv: [[0,1,1],[3,3,1],[7,5,0],[10,7,1],[2,9,1]] },
+  { id: "mMaj9",  l: "mMaj9",   cat: "ナインス", fam: "min", iv: [[0,1,1],[3,3,1],[7,5,0],[11,7,1],[2,9,1]] },
+  { id: "7b9",    l: "7♭9",     cat: "ナインス", fam: "dom", iv: [[0,1,1],[4,3,1],[7,5,0],[10,7,1],[1,9,1]] },
+  { id: "7#9",    l: "7#9",     cat: "ナインス", fam: "dom", iv: [[0,1,1],[4,3,1],[7,5,0],[10,7,1],[3,9,1]] },
+  { id: "9sus4",  l: "9sus4",   cat: "ナインス", fam: "dom", iv: [[0,1,1],[5,4,1],[7,5,0],[10,7,1],[2,9,1]] },
+  { id: "9#5",    l: "9#5",     cat: "ナインス", fam: "dom", iv: [[0,1,1],[4,3,1],[8,5,1],[10,7,1],[2,9,1]] },
+  { id: "9b5",    l: "9♭5",     cat: "ナインス", fam: "dom", iv: [[0,1,1],[4,3,1],[6,5,1],[10,7,1],[2,9,1]] },
+  { id: "m9b5",   l: "m9♭5",    cat: "ナインス", fam: "hdim", iv: [[0,1,1],[3,3,1],[6,5,1],[10,7,1],[2,9,1]] },
+  { id: "11",     l: "11",      cat: "イレブンス", fam: "dom", iv: [[0,1,1],[4,3,0],[7,5,0],[10,7,1],[2,9,0],[5,11,1]] },
+  { id: "m11",    l: "m11",     cat: "イレブンス", fam: "min", iv: [[0,1,1],[3,3,1],[7,5,0],[10,7,1],[2,9,0],[5,11,1]] },
+  { id: "madd11", l: "madd11",  cat: "イレブンス", fam: "min", iv: [[0,1,1],[3,3,1],[7,5,0],[5,11,1]] },
+  { id: "m11b5",  l: "m11♭5",   cat: "イレブンス", fam: "hdim", iv: [[0,1,1],[3,3,1],[6,5,1],[10,7,1],[5,11,1]] },
+  { id: "7#11",   l: "7#11",    cat: "イレブンス", fam: "dom", iv: [[0,1,1],[4,3,1],[7,5,0],[10,7,1],[6,11,1]] },
+  { id: "maj7#11",l: "maj7#11", cat: "イレブンス", fam: "maj", iv: [[0,1,1],[4,3,1],[7,5,0],[11,7,1],[6,11,1]] },
+  { id: "9#11",   l: "9#11",    cat: "イレブンス", fam: "dom", iv: [[0,1,1],[4,3,1],[7,5,0],[10,7,1],[2,9,1],[6,11,1]] },
+  { id: "maj9#11",l: "maj9#11", cat: "イレブンス", fam: "maj", iv: [[0,1,1],[4,3,1],[7,5,0],[11,7,1],[2,9,1],[6,11,1]] },
+  { id: "13",     l: "13",      cat: "サーティーンス", fam: "dom", iv: [[0,1,1],[4,3,1],[7,5,0],[10,7,1],[2,9,0],[9,13,1]] },
+  { id: "maj13",  l: "maj13",   cat: "サーティーンス", fam: "maj", iv: [[0,1,1],[4,3,1],[7,5,0],[11,7,1],[2,9,0],[9,13,1]] },
+  { id: "m13",    l: "m13",     cat: "サーティーンス", fam: "min", iv: [[0,1,1],[3,3,1],[7,5,0],[10,7,1],[2,9,0],[9,13,1]] },
+  { id: "7b13",   l: "7♭13",    cat: "サーティーンス", fam: "dom", iv: [[0,1,1],[4,3,1],[10,7,1],[8,13,1]] },
+  { id: "13b9",   l: "13♭9",    cat: "サーティーンス", fam: "dom", iv: [[0,1,1],[4,3,1],[10,7,1],[1,9,1],[9,13,1]] },
+  { id: "13#9",   l: "13#9",    cat: "サーティーンス", fam: "dom", iv: [[0,1,1],[4,3,1],[10,7,1],[3,9,1],[9,13,1]] },
+  { id: "13#11",  l: "13#11",   cat: "サーティーンス", fam: "dom", iv: [[0,1,1],[4,3,1],[10,7,1],[6,11,1],[9,13,1],[2,9,0]] },
+  { id: "maj13#11", l: "maj13#11", cat: "サーティーンス", fam: "maj", iv: [[0,1,1],[4,3,1],[11,7,1],[6,11,1],[9,13,1],[2,9,0]] },
+  { id: "7b9b13", l: "7♭9♭13",  cat: "サーティーンス", fam: "dom", iv: [[0,1,1],[4,3,1],[10,7,1],[1,9,1],[8,13,1]] },
+  { id: "7b5b9",  l: "7♭5♭9",   cat: "オルタード", fam: "dom", iv: [[0,1,1],[4,3,1],[6,5,1],[10,7,1],[1,9,1]] },
+  { id: "7b5#9",  l: "7♭5#9",   cat: "オルタード", fam: "dom", iv: [[0,1,1],[4,3,1],[6,5,1],[10,7,1],[3,9,1]] },
+  { id: "7#5b9",  l: "7#5♭9",   cat: "オルタード", fam: "dom", iv: [[0,1,1],[4,3,1],[8,5,1],[10,7,1],[1,9,1]] },
+  { id: "7#5#9",  l: "7#5#9",   cat: "オルタード", fam: "dom", iv: [[0,1,1],[4,3,1],[8,5,1],[10,7,1],[3,9,1]] },
+  { id: "7#9b13", l: "7#9♭13",  cat: "オルタード", fam: "dom", iv: [[0,1,1],[4,3,1],[10,7,1],[3,9,1],[8,13,1]] },
+  { id: "7sus4b9",l: "7sus4♭9", cat: "オルタード", fam: "dom", iv: [[0,1,1],[5,4,1],[7,5,0],[10,7,1],[1,9,1]] }
+];
+const TYPE_BY_ID = {};
+CHORD_TYPES.forEach(t => TYPE_BY_ID[t.id] = t);
+
+const LETTERS = ["C","D","E","F","G","A","B"];
+const NAT_PC = { C:0, D:2, E:4, F:5, G:7, A:9, B:11 };
+const DEG_OFF = { 1:0, 2:1, 3:2, 4:3, 5:4, 6:5, 7:6, 9:1, 11:3, 13:5 };
+function spellNote(rootPc, semi, deg) {
+  const rootLetter = NOTE_NAMES[rootPc][0];
+  const li = LETTERS.indexOf(rootLetter);
+  const letter = LETTERS[(li + DEG_OFF[deg]) % 7];
+  const targetPc = (rootPc + semi) % 12;
+  let acc = targetPc - NAT_PC[letter];
+  acc = ((acc + 6) % 12 + 12) % 12 - 6;
+  let s = "";
+  if (acc === 1) s = "#"; else if (acc === 2) s = "##";
+  else if (acc === -1) s = "♭"; else if (acc === -2) s = "♭♭";
+  return letter + s;
+}
+
+const TUNING = [40, 45, 50, 55, 59, 64];
+function genVoicings(rootPc, type, topPc) {
+  const chordPcs = new Set(type.iv.map(t => (rootPc + t[0]) % 12));
+  const reqPcs = new Set(type.iv.filter(t => t[2]).map(t => (rootPc + t[0]) % 12));
+  const results = [];
+  const seen = new Set();
+
+  function evalCombo(fr) {
+    const midis = [];
+    const frets = [];
+    for (let s = 0; s < 6; s++) {
+      if (fr[s] >= 0) {
+        midis.push(TUNING[s] + fr[s]);
+        if (fr[s] > 0) frets.push(fr[s]);
+      }
+    }
+    if (midis.length < 3) return;
+    if (topPc !== null && topPc !== undefined) {
+      let top = midis[0];
+      for (const m of midis) if (m > top) top = m;
+      if (top % 12 !== topPc) return;
+    }
+    const pcs = new Set(midis.map(m => m % 12));
+    for (const p of reqPcs) if (!pcs.has(p)) return;
+    let span = 0, minF = 0;
+    if (frets.length) {
+      minF = Math.min.apply(null, frets);
+      span = Math.max.apply(null, frets) - minF;
+    }
+    if (span > 3) return;
+    const openCount = fr.filter(f => f === 0).length;
+    let fingers = frets.length;
+    let barre = false;
+    if (fingers > 4) {
+      if (openCount > 0) return;
+      const atMin = frets.filter(f => f === minF).length;
+      fingers = fingers - atMin + 1;
+      barre = true;
+      if (fingers > 4) return;
+    }
+    let first = -1, last = -1;
+    for (let s = 0; s < 6; s++) if (fr[s] >= 0) { if (first < 0) first = s; last = s; }
+    let inner = 0;
+    for (let s = first; s <= last; s++) if (fr[s] < 0) inner++;
+    if (inner > 1) return;
+    const bassPc = (TUNING[first] + fr[first]) % 12;
+    let cover = 0;
+    for (const p of chordPcs) if (pcs.has(p)) cover++;
+    let score = 0;
+    score += midis.length * 10;
+    if (bassPc === rootPc) score += 25;
+    score += cover * 6;
+    score -= inner * 12;
+    score -= fingers * 2;
+    score += openCount * 3;
+    score -= minF * 1.2;
+    if (barre) score -= 3;
+    const key = fr.join(",");
+    if (seen.has(key)) return;
+    seen.add(key);
+    results.push({ fr: fr.slice(), score: score, minF: minF, bass: first });
+  }
+
+  for (let base = 0; base <= 12; base++) {
+    const maxF = base + 3;
+    const opts = TUNING.map(open => {
+      const arr = [-1];
+      if (chordPcs.has(open % 12)) arr.push(0);
+      for (let f = Math.max(1, base); f <= maxF; f++) {
+        if (chordPcs.has((open + f) % 12)) arr.push(f);
+      }
+      return arr;
+    });
+    const combo = new Array(6).fill(-1);
+    (function rec(s) {
+      if (s === 6) { evalCombo(combo); return; }
+      for (const f of opts[s]) { combo[s] = f; rec(s + 1); }
+    })(0);
+  }
+
+  results.sort((a, b) => b.score - a.score);
+  const picked = [];
+  for (const v of results) {
+    if (picked.length >= 6) break;
+    let ok = true;
+    for (const p of picked) {
+      if (Math.abs(v.minF - p.minF) < 2 && v.bass === p.bass) { ok = false; break; }
+    }
+    if (ok) picked.push(v);
+  }
+  if (picked.length < 2) {
+    for (const v of results) {
+      if (picked.indexOf(v) < 0) { picked.push(v); if (picked.length >= 2) break; }
+    }
+  }
+  return picked;
+}
+
+const FB = { NUT: 26, FW: 27.5, TOP: 16, GAP: 20, FRETS: 22 };
+const SVGNS = "http://www.w3.org/2000/svg";
+function svgEl(tag, attrs) {
+  const el = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) el.setAttribute(k, attrs[k]);
+  return el;
+}
+function createFretboard(container) {
+  const W = FB.NUT + FB.FRETS * FB.FW + 8;
+  const H = 152;
+  const svg = svgEl("svg", { width: W, height: H, viewBox: "0 0 " + W + " " + H });
+  for (let f = 0; f <= FB.FRETS; f++) {
+    const x = FB.NUT + f * FB.FW;
+    svg.appendChild(svgEl("line", { x1: x, y1: FB.TOP, x2: x, y2: FB.TOP + 5 * FB.GAP, stroke: "#fff", "stroke-width": f === 0 ? 5 : 1 }));
+  }
+  for (let s = 0; s < 6; s++) {
+    const y = FB.TOP + s * FB.GAP;
+    svg.appendChild(svgEl("line", { x1: FB.NUT, y1: y, x2: FB.NUT + FB.FRETS * FB.FW, y2: y, stroke: "#fff", "stroke-width": 1.3 }));
+  }
+  const midY = FB.TOP + 2.5 * FB.GAP;
+  [3,5,7,9,15,17,19,21].forEach(f => {
+    svg.appendChild(svgEl("circle", { cx: FB.NUT + (f - 0.5) * FB.FW, cy: midY, r: 3.5, stroke: "#fff", fill: "none", "stroke-width": 1 }));
+  });
+  [46, 86].forEach(y => {
+    svg.appendChild(svgEl("circle", { cx: FB.NUT + 11.5 * FB.FW, cy: y, r: 3.5, stroke: "#fff", fill: "none", "stroke-width": 1 }));
+  });
+  [3,5,7,9,12,15,17,19,21].forEach(f => {
+    const t = svgEl("text", { x: FB.NUT + (f - 0.5) * FB.FW, y: 148, "font-size": 10, fill: "#fff", "text-anchor": "middle" });
+    t.textContent = f;
+    svg.appendChild(t);
+  });
+  const dots = svgEl("g", {});
+  svg.appendChild(dots);
+  container.appendChild(svg);
+  return { svg: svg, dots: dots };
+}
+const dictFb = createFretboard(document.getElementById("fbScroll"));
+const fbSvg = dictFb.svg;
+const fbDots = dictFb.dots;
+const memoFb = createFretboard(document.getElementById("mFbScroll"));
+function stringY(s) { return FB.TOP + (5 - s) * FB.GAP; }
+function drawVoicing(v, rootPc) {
+  fbDots.innerHTML = "";
+  if (!v) return;
+  for (let s = 0; s < 6; s++) {
+    const f = v.fr[s];
+    const y = stringY(s);
+    if (f < 0) {
+      const sz = 4.5;
+      fbDots.appendChild(svgEl("line", { x1: 12 - sz, y1: y - sz, x2: 12 + sz, y2: y + sz, stroke: "#fff", "stroke-width": 1.6 }));
+      fbDots.appendChild(svgEl("line", { x1: 12 - sz, y1: y + sz, x2: 12 + sz, y2: y - sz, stroke: "#fff", "stroke-width": 1.6 }));
+    } else if (f === 0) {
+      const isRoot = (TUNING[s] % 12) === rootPc;
+      fbDots.appendChild(svgEl("circle", { cx: 12, cy: y, r: 6, stroke: "#fff", fill: "none", "stroke-width": 1.6 }));
+      if (isRoot) fbDots.appendChild(svgEl("circle", { cx: 12, cy: y, r: 2.2, fill: "#fff" }));
+    } else {
+      const x = FB.NUT + (f - 0.5) * FB.FW;
+      const isRoot = ((TUNING[s] + f) % 12) === rootPc;
+      fbDots.appendChild(svgEl("circle", { cx: x, cy: y, r: 8, fill: "#fff" }));
+      if (isRoot) fbDots.appendChild(svgEl("circle", { cx: x, cy: y, r: 3, fill: "#000" }));
+    }
+  }
+  const sc = document.getElementById("fbScroll");
+  if (v.minF > 9) sc.scrollLeft = FB.NUT + (v.minF - 2) * FB.FW;
+  else sc.scrollLeft = 0;
+}
+
+const dictKb = buildKeyboard(
+  document.getElementById("kb2"), 2,
+  (i) => 48 + i,
+  (e, i, k) => {
+    if (dictMode !== "rev") return false;
+    e.preventDefault();
+    toggleRevKey(i);
+    return true;
+  }
+);
+let kb2Lit = [];
+function clearKb2() {
+  kb2Lit.forEach(i => {
+    dictKb.keys[i].classList.remove("lit");
+    dictKb.dots[i].textContent = "";
+  });
+  kb2Lit = [];
+}
+function lightKb2(indices, textFn) {
+  clearKb2();
+  kb2Lit = indices.slice();
+  indices.forEach(i => {
+    dictKb.keys[i].classList.add("lit");
+    dictKb.dots[i].textContent = textFn(i);
+  });
+}
+
+const SUGGEST = {
+  maj:  { p: [[7,"7"],[5,""],[2,"m7"]],        n: [[9,"m7"],[2,"m7"],[5,"maj7"]] },
+  min:  { p: [[7,"7"],[10,"7"],[8,"maj7"]],    n: [[5,"m7"],[5,"7"],[10,"7"]] },
+  dom:  { p: [[7,"m7"],[7,"7"],[2,"m7"]],      n: [[5,"maj7"],[5,"m7"],[2,"m7"]] },
+  hdim: { p: [[10,"m"],[3,"m"]],               n: [[5,"7b9"],[5,"7"]] },
+  dim:  { p: [[11,""],[11,"m"]],               n: [[1,"m"],[1,""]] },
+  aug:  { p: [[0,""],[0,"7"]],                 n: [[5,""],[0,"6"],[5,"m"]] },
+  sus:  { p: [[5,""],[0,""]],                  n: [[0,""],[0,"7"]] }
+};
+
+let hist = [];
+try { hist = JSON.parse(store.get("gt.hist", "[]")); } catch (e) { hist = []; }
+function pushHist(r, t) {
+  hist = hist.filter(h => !(h.r === r && h.t === t));
+  hist.unshift({ r: r, t: t });
+  if (hist.length > 30) hist = hist.slice(0, 30);
+  store.set("gt.hist", JSON.stringify(hist));
+  renderHist();
+}
+function chordName(r, t) {
+  const tp = TYPE_BY_ID[t];
+  return NOTE_NAMES[r] + (tp ? tp.l : t);
+}
+function renderHist() {
+  const row = document.getElementById("histRow");
+  row.innerHTML = '<span class="clabel">履歴</span>';
+  hist.forEach(h => {
+    const b = document.createElement("button");
+    b.className = "chip";
+    b.textContent = chordName(h.r, h.t);
+    b.addEventListener("click", () => showChord(h.r, h.t));
+    row.appendChild(b);
+  });
+}
+
+let curRoot = 0, curType = "";
+let curVoicings = [];
+let vIdx = 0;
+let topSel = null;
+let chordMidis = [];
+
+const chordTitleEl = document.getElementById("chordTitle");
+const chordTonesEl = document.getElementById("chordTones");
+const vLabelEl = document.getElementById("vLabel");
+
+function fillSug(el, list) {
+  el.innerHTML = "";
+  list.forEach(sg => {
+    const nr = (curRoot + sg[0]) % 12;
+    const nt = sg[1];
+    const b = document.createElement("button");
+    b.className = "schip";
+    b.textContent = chordName(nr, nt);
+    b.addEventListener("click", () => showChord(nr, nt));
+    el.appendChild(b);
+  });
+}
+
+function showChord(r, t, addHist) {
+  if (addHist === undefined) addHist = true;
+  const tp = TYPE_BY_ID[t];
+  if (!tp) return;
+  curRoot = r; curType = t;
+  store.set("gt.lastChord", JSON.stringify({ r: r, t: t }));
+
+  const name = chordName(r, t);
+  chordTitleEl.textContent = name + " ▾";
+  chordTitleEl.style.fontSize = (name.length > 8 ? 24 : (name.length > 5 ? 32 : 44)) + "px";
+  chordTonesEl.textContent = tp.iv.map(iv => spellNote(r, iv[0], iv[1])).join("  ");
+
+  topSel = null;
+  curVoicings = genVoicings(r, tp, null);
+  vIdx = 0;
+  renderVoicing();
+  renderTopRow(tp);
+
+  chordMidis = [];
+  const indices = [];
+  tp.iv.forEach(iv => {
+    let idx = r + iv[0];
+    if (idx > 23) idx -= 12;
+    indices.push(idx);
+    chordMidis.push(48 + idx);
+  });
+  lightKb2(indices, (i) => (i === r ? "R" : ""));
+
+  const sug = SUGGEST[tp.fam] || { p: [], n: [] };
+  fillSug(document.getElementById("sugPrev"), sug.p);
+  fillSug(document.getElementById("sugNext"), sug.n);
+
+  const scRow = document.getElementById("chScales");
+  scRow.innerHTML = '<span class="clabel">スケール</span>';
+  scalesForChord(r, tp).forEach(sc => {
+    const b = document.createElement("button");
+    b.className = "chip";
+    b.textContent = NOTE_NAMES[r] + " " + sc.l;
+    b.addEventListener("click", () => { setDictMode("scale"); showScale(r, sc.id); });
+    scRow.appendChild(b);
+  });
+
+  document.getElementById("sheetTitle").textContent = name;
+  renderRootGrid();
+  if (addHist) pushHist(r, t);
+}
+function renderVoicing() {
+  const v = curVoicings[vIdx] || null;
+  drawVoicing(v, curRoot);
+  vLabelEl.textContent = v ? "押さえ方 " + (vIdx + 1) + "/" + curVoicings.length : "フォームなし";
+}
+function renderTopRow(tp) {
+  const row = document.getElementById("topRow");
+  row.innerHTML = '<span class="clabel">トップ</span>';
+  const none = document.createElement("button");
+  none.className = "chip";
+  none.textContent = "指定なし";
+  none.classList.toggle("on", topSel === null);
+  none.addEventListener("click", () => setTopSel(null));
+  row.appendChild(none);
+  tp.iv.forEach(iv => {
+    const pc = (curRoot + iv[0]) % 12;
+    const b = document.createElement("button");
+    b.className = "chip";
+    b.textContent = spellNote(curRoot, iv[0], iv[1]);
+    b.classList.toggle("on", topSel === pc);
+    b.addEventListener("click", () => setTopSel(pc));
+    row.appendChild(b);
+  });
+}
+function setTopSel(pc) {
+  topSel = pc;
+  const tp = TYPE_BY_ID[curType];
+  curVoicings = genVoicings(curRoot, tp, topSel);
+  vIdx = 0;
+  renderVoicing();
+  renderTopRow(tp);
+}
+document.getElementById("vPrev").addEventListener("click", () => {
+  if (!curVoicings.length) return;
+  vIdx = (vIdx - 1 + curVoicings.length) % curVoicings.length;
+  renderVoicing();
+});
+document.getElementById("vNext").addEventListener("click", () => {
+  if (!curVoicings.length) return;
+  vIdx = (vIdx + 1) % curVoicings.length;
+  renderVoicing();
+});
+document.getElementById("playBtn").addEventListener("click", async () => {
+  await ensureAudio();
+  const t0 = audioCtx.currentTime + 0.05;
+  chordMidis.forEach((m, i) => playPluck(m, t0 + i * 0.08, 0.5));
+});
+
+const typeSheet = document.getElementById("typeSheet");
+chordTitleEl.addEventListener("click", () => openSheet(typeSheet));
+document.getElementById("sheetClose").addEventListener("click", () => closeSheet(typeSheet));
+const rootBtns = [];
+(function buildSheet() {
+  const body = document.getElementById("sheetBody");
+  const rh = document.createElement("div");
+  rh.className = "catTitle";
+  rh.textContent = "ルート";
+  body.appendChild(rh);
+  const g = document.createElement("div");
+  g.className = "rootGrid";
+  for (let r = 0; r < 12; r++) {
+    const b = document.createElement("button");
+    b.textContent = NOTE_NAMES[r];
+    b.addEventListener("click", () => showChord(r, curType));
+    g.appendChild(b);
+    rootBtns.push(b);
+  }
+  body.appendChild(g);
+  const cats = [];
+  CHORD_TYPES.forEach(t => { if (cats.indexOf(t.cat) < 0) cats.push(t.cat); });
+  cats.forEach(cat => {
+    const h = document.createElement("div");
+    h.className = "catTitle";
+    h.textContent = cat;
+    body.appendChild(h);
+    const grid = document.createElement("div");
+    grid.className = "catGrid";
+    CHORD_TYPES.filter(t => t.cat === cat).forEach(t => {
+      const b = document.createElement("button");
+      b.textContent = t.l === "" ? "メジャー" : t.l;
+      b.addEventListener("click", () => {
+        closeSheet(typeSheet);
+        showChord(curRoot, t.id);
+      });
+      grid.appendChild(b);
+    });
+    body.appendChild(grid);
+  });
+})();
+function renderRootGrid() {
+  rootBtns.forEach((b, r) => b.classList.toggle("on", r === curRoot));
+}
+
+/* ================= 辞典: スケール ================= */
+const CHROM_IV = [];
+for (let k = 0; k < 12; k++) CHROM_IV.push([k, null]);
+const SCALES = [
+  { id: "major",     l: "メジャー",             cat: "メジャー/マイナー", iv: [[0,1],[2,2],[4,3],[5,4],[7,5],[9,6],[11,7]] },
+  { id: "nminor",    l: "ナチュラルマイナー",   cat: "メジャー/マイナー", iv: [[0,1],[2,2],[3,3],[5,4],[7,5],[8,6],[10,7]] },
+  { id: "hminor",    l: "ハーモニックマイナー", cat: "メジャー/マイナー", iv: [[0,1],[2,2],[3,3],[5,4],[7,5],[8,6],[11,7]] },
+  { id: "mminor",    l: "メロディックマイナー", cat: "メジャー/マイナー", iv: [[0,1],[2,2],[3,3],[5,4],[7,5],[9,6],[11,7]] },
+  { id: "majpenta",  l: "メジャーペンタ",       cat: "ペンタ・ブルース", iv: [[0,1],[2,2],[4,3],[7,5],[9,6]] },
+  { id: "minpenta",  l: "マイナーペンタ",       cat: "ペンタ・ブルース", iv: [[0,1],[3,3],[5,4],[7,5],[10,7]] },
+  { id: "majblues",  l: "ブルース(メジャー)",   cat: "ペンタ・ブルース", iv: [[0,1],[2,2],[3,3],[4,3],[7,5],[9,6]] },
+  { id: "minblues",  l: "ブルース(マイナー)",   cat: "ペンタ・ブルース", iv: [[0,1],[3,3],[5,4],[6,5],[7,5],[10,7]] },
+  { id: "dorian",    l: "ドリアン",             cat: "モード", iv: [[0,1],[2,2],[3,3],[5,4],[7,5],[9,6],[10,7]] },
+  { id: "phrygian",  l: "フリジアン",           cat: "モード", iv: [[0,1],[1,2],[3,3],[5,4],[7,5],[8,6],[10,7]] },
+  { id: "lydian",    l: "リディアン",           cat: "モード", iv: [[0,1],[2,2],[4,3],[6,4],[7,5],[9,6],[11,7]] },
+  { id: "mixo",      l: "ミクソリディアン",     cat: "モード", iv: [[0,1],[2,2],[4,3],[5,4],[7,5],[9,6],[10,7]] },
+  { id: "locrian",   l: "ロクリアン",           cat: "モード", iv: [[0,1],[1,2],[3,3],[5,4],[6,5],[8,6],[10,7]] },
+  { id: "altered",   l: "オルタード",           cat: "ジャズ系", iv: [[0,1],[1,2],[3,3],[4,3],[6,5],[8,6],[10,7]] },
+  { id: "lyd7",      l: "リディアン7th",        cat: "ジャズ系", iv: [[0,1],[2,2],[4,3],[6,4],[7,5],[9,6],[10,7]] },
+  { id: "phrydom",   l: "フリジアンドミナント", cat: "ジャズ系", iv: [[0,1],[1,2],[4,3],[5,4],[7,5],[8,6],[10,7]] },
+  { id: "bebopdom",  l: "ビバップドミナント",   cat: "ジャズ系", iv: [[0,1],[2,2],[4,3],[5,4],[7,5],[9,6],[10,7],[11,7]] },
+  { id: "bebopmaj",  l: "ビバップメジャー",     cat: "ジャズ系", iv: [[0,1],[2,2],[4,3],[5,4],[7,5],[8,6],[9,6],[11,7]] },
+  { id: "wholetone", l: "ホールトーン",         cat: "シンメトリック", iv: [[0,1],[2,2],[4,3],[6,4],[8,5],[10,7]] },
+  { id: "dimWH",     l: "ディミニッシュ(全半)", cat: "シンメトリック", iv: [[0,1],[2,2],[3,3],[5,4],[6,5],[8,6],[9,6],[11,7]] },
+  { id: "dimHW",     l: "ディミニッシュ(半全)", cat: "シンメトリック", iv: [[0,1],[1,2],[3,3],[4,3],[6,4],[7,5],[9,6],[10,7]] },
+  { id: "chromatic", l: "クロマチック",         cat: "シンメトリック", iv: CHROM_IV },
+  { id: "ryukyu",    l: "琉球",                 cat: "その他", iv: [[0,1],[4,3],[5,4],[7,5],[11,7]] },
+  { id: "miyako",    l: "都節",                 cat: "その他", iv: [[0,1],[1,2],[5,4],[7,5],[8,6]] },
+  { id: "hungarian", l: "ハンガリアンマイナー", cat: "その他", iv: [[0,1],[2,2],[3,3],[6,4],[7,5],[8,6],[11,7]] }
+];
+const SCALE_BY_ID = {};
+SCALES.forEach(s => SCALE_BY_ID[s.id] = s);
+
+/* コード⇔スケール相互リンク */
+function scalesForChord(rootPc, tp) {
+  const cs = tp.iv.map(v => (rootPc + v[0]) % 12);
+  const out = [];
+  for (const sc of SCALES) {
+    if (sc.id === "chromatic") continue;
+    const pcs = new Set(sc.iv.map(v => (rootPc + v[0]) % 12));
+    if (cs.every(p => pcs.has(p))) out.push(sc);
+  }
+  out.sort((a, b) => (a.iv.length - b.iv.length) || (SCALES.indexOf(a) - SCALES.indexOf(b)));
+  return out.slice(0, 8);
+}
+const DIA_SEVENTHS = ["maj7", "7", "m7", "m7b5", "mMaj7", "dim7", "maj7#5", "7#5"];
+const DIA_TRIADS = ["", "m", "dim", "aug"];
+function diatonicChords(rootPc, sc) {
+  const pcs = new Set(sc.iv.map(v => (rootPc + v[0]) % 12));
+  const out = [];
+  sc.iv.forEach(v => {
+    if (v[1] === null) return;
+    const r2 = (rootPc + v[0]) % 12;
+    let hit = null;
+    for (const id of DIA_SEVENTHS) {
+      const tp = TYPE_BY_ID[id];
+      if (tp.iv.every(w => pcs.has((r2 + w[0]) % 12))) { hit = id; break; }
+    }
+    if (hit === null) {
+      for (const id of DIA_TRIADS) {
+        const tp = TYPE_BY_ID[id];
+        if (tp.iv.every(w => pcs.has((r2 + w[0]) % 12))) { hit = id; break; }
+      }
+    }
+    if (hit !== null) out.push({ deg: degLabel(v[0], v[1]), r: r2, t: hit });
+  });
+  return out;
+}
+
+let curScaleRoot = 0, curScaleId = "major";
+let rootEmph = store.get("gt.remph", "1") === "1";
+
+const scaleTitleEl = document.getElementById("scaleTitle");
+const scaleTonesEl = document.getElementById("scaleTones");
+const rootTglBtn = document.getElementById("rootTglBtn");
+
+function scaleName(r, id) {
+  const sc = SCALE_BY_ID[id];
+  return NOTE_NAMES[r] + " " + (sc ? sc.l : id);
+}
+function drawScale(r, sc) {
+  fbDots.innerHTML = "";
+  const pcs = new Set(sc.iv.map(v => (r + v[0]) % 12));
+  const useDeg = degShow && sc.id !== "chromatic";
+  const degOf = {};
+  if (useDeg) {
+    sc.iv.forEach(v => { degOf[(r + v[0]) % 12] = (v[0] === 0 ? "R" : degLabel(v[0], v[1])); });
+  }
+  function put(x, y, pc) {
+    const isR = pc === r;
+    if (useDeg) {
+      fbDots.appendChild(svgEl("circle", { cx: x, cy: y, r: 9, fill: "#fff" }));
+      const t = svgEl("text", { x: x, y: y + 3.2, "font-size": isR ? 10 : 8.5, fill: "#000", "text-anchor": "middle" });
+      t.textContent = degOf[pc];
+      fbDots.appendChild(t);
+    } else if (x === 12) {
+      fbDots.appendChild(svgEl("circle", { cx: x, cy: y, r: 6, stroke: "#fff", fill: "none", "stroke-width": 1.6 }));
+      if (isR && rootEmph) fbDots.appendChild(svgEl("circle", { cx: x, cy: y, r: 2.2, fill: "#fff" }));
+    } else {
+      fbDots.appendChild(svgEl("circle", { cx: x, cy: y, r: 7, fill: "#fff" }));
+      if (isR && rootEmph) fbDots.appendChild(svgEl("circle", { cx: x, cy: y, r: 2.8, fill: "#000" }));
+    }
+  }
+  for (let s = 0; s < 6; s++) {
+    const y = stringY(s);
+    const openPc = TUNING[s] % 12;
+    if (pcs.has(openPc)) put(12, y, openPc);
+    for (let f = 1; f <= FB.FRETS; f++) {
+      const pc = (TUNING[s] + f) % 12;
+      if (pcs.has(pc)) put(FB.NUT + (f - 0.5) * FB.FW, y, pc);
+    }
+  }
+  document.getElementById("fbScroll").scrollLeft = 0;
+}
+function showScale(r, id, persist) {
+  if (persist === undefined) persist = true;
+  const sc = SCALE_BY_ID[id];
+  if (!sc) return;
+  curScaleRoot = r; curScaleId = id;
+  if (persist) store.set("gt.lastScale", JSON.stringify({ r: r, id: id }));
+
+  const name = scaleName(r, id);
+  scaleTitleEl.textContent = name + " ▾";
+  scaleTitleEl.style.fontSize = (name.length > 11 ? 22 : (name.length > 8 ? 27 : 34)) + "px";
+  if (id === "chromatic") {
+    const arr = [];
+    for (let k = 0; k < 12; k++) arr.push(NOTE_NAMES[(r + k) % 12]);
+    scaleTonesEl.textContent = arr.join(" ");
+  } else {
+    scaleTonesEl.textContent = sc.iv.map(v => spellNote(r, v[0], v[1])).join("  ");
+  }
+
+  drawScale(r, sc);
+
+  const pcs = new Set(sc.iv.map(v => (r + v[0]) % 12));
+  const indices = [];
+  for (let i = 0; i < 24; i++) if (pcs.has(i % 12)) indices.push(i);
+  const pcDeg = {};
+  if (degShow && id !== "chromatic") {
+    sc.iv.forEach(v => { pcDeg[(r + v[0]) % 12] = (v[0] === 0 ? "R" : degLabel(v[0], v[1])); });
+  }
+  lightKb2(indices, (i) => {
+    const pc = i % 12;
+    if (degShow && id !== "chromatic") return pcDeg[pc] || "";
+    return pc === r ? "R" : "";
+  });
+
+  const diaRow = document.getElementById("scDia");
+  diaRow.innerHTML = '<span class="clabel">ダイアトニック</span>';
+  if (id !== "chromatic") {
+    diatonicChords(r, sc).forEach(o => {
+      const b = document.createElement("button");
+      b.className = "chip";
+      b.textContent = o.deg + " " + chordName(o.r, o.t);
+      b.addEventListener("click", () => { setDictMode("chord"); showChord(o.r, o.t); });
+      diaRow.appendChild(b);
+    });
+  }
+
+  document.getElementById("scaleSheetTitle").textContent = name;
+  renderScaleRootGrid();
+  renderRootTgl();
+  if (typeof prRefresh === "function") prRefresh();
+}
+function renderRootTgl() { rootTglBtn.classList.toggle("on", rootEmph); }
+rootTglBtn.addEventListener("click", () => {
+  rootEmph = !rootEmph;
+  store.set("gt.remph", rootEmph ? "1" : "0");
+  showScale(curScaleRoot, curScaleId, false);
+});
+let degShow = store.get("gt.deg", "0") === "1";
+const degBtn = document.getElementById("degBtn");
+function renderDeg() { degBtn.classList.toggle("on", degShow); }
+degBtn.addEventListener("click", () => {
+  degShow = !degShow;
+  store.set("gt.deg", degShow ? "1" : "0");
+  renderDeg();
+  showScale(curScaleRoot, curScaleId, false);
+});
+renderDeg();
+document.getElementById("scalePlayBtn").addEventListener("click", async () => {
+  await ensureAudio();
+  const sc = SCALE_BY_ID[curScaleId];
+  const t0 = audioCtx.currentTime + 0.05;
+  const midis = sc.iv.map(v => 48 + curScaleRoot + v[0]);
+  midis.push(48 + curScaleRoot + 12);
+  midis.forEach((m, i) => playPluck(m, t0 + i * 0.22, 0.5));
+});
+
+const scaleSheet = document.getElementById("scaleSheet");
+scaleTitleEl.addEventListener("click", () => openSheet(scaleSheet));
+document.getElementById("scaleSheetClose").addEventListener("click", () => closeSheet(scaleSheet));
+const scaleRootBtns = [];
+(function buildScaleSheet() {
+  const body = document.getElementById("scaleSheetBody");
+  const rh = document.createElement("div");
+  rh.className = "catTitle";
+  rh.textContent = "ルート";
+  body.appendChild(rh);
+  const g = document.createElement("div");
+  g.className = "rootGrid";
+  for (let r = 0; r < 12; r++) {
+    const b = document.createElement("button");
+    b.textContent = NOTE_NAMES[r];
+    b.addEventListener("click", () => showScale(r, curScaleId));
+    g.appendChild(b);
+    scaleRootBtns.push(b);
+  }
+  body.appendChild(g);
+  const cats = [];
+  SCALES.forEach(s => { if (cats.indexOf(s.cat) < 0) cats.push(s.cat); });
+  cats.forEach(cat => {
+    const h = document.createElement("div");
+    h.className = "catTitle";
+    h.textContent = cat;
+    body.appendChild(h);
+    const grid = document.createElement("div");
+    grid.className = "catGrid";
+    SCALES.filter(s => s.cat === cat).forEach(s => {
+      const b = document.createElement("button");
+      b.textContent = s.l;
+      b.addEventListener("click", () => {
+        closeSheet(scaleSheet);
+        showScale(curScaleRoot, s.id);
+      });
+      grid.appendChild(b);
+    });
+    body.appendChild(grid);
+  });
+})();
+function renderScaleRootGrid() {
+  scaleRootBtns.forEach((b, r) => b.classList.toggle("on", r === curScaleRoot));
+}
+
+/* ================= 辞典: 逆引き ================= */
+let revStr = [null, null, null, null, null, null]; /* 弦ごとのフレット(null=未選択, 0=開放) */
+let revKeys = new Set(); /* 鍵盤インデックス(0-23) */
+const revSelTextEl = document.getElementById("revSelText");
+const revResultsEl = document.getElementById("revResults");
+
+function revMidis() {
+  const arr = [];
+  for (let s = 0; s < 6; s++) if (revStr[s] !== null) arr.push(TUNING[s] + revStr[s]);
+  revKeys.forEach(i => arr.push(48 + i));
+  arr.sort((a, b) => a - b);
+  return arr;
+}
+function drawRevFret() {
+  fbDots.innerHTML = "";
+  for (let s = 0; s < 6; s++) {
+    const f = revStr[s];
+    if (f === null) continue;
+    const y = stringY(s);
+    if (f === 0) {
+      fbDots.appendChild(svgEl("circle", { cx: 12, cy: y, r: 6, stroke: "#fff", fill: "none", "stroke-width": 1.6 }));
+    } else {
+      fbDots.appendChild(svgEl("circle", { cx: FB.NUT + (f - 0.5) * FB.FW, cy: y, r: 8, fill: "#fff" }));
+    }
+  }
+}
+function identifyChords(midis) {
+  if (midis.length < 2) return [];
+  const inPcs = new Set(midis.map(m => m % 12));
+  const bassPc = midis[0] % 12;
+  const out = [];
+  for (let r = 0; r < 12; r++) {
+    if (!inPcs.has(r)) continue;
+    for (const tp of CHORD_TYPES) {
+      const set = new Set(tp.iv.map(v => (r + v[0]) % 12));
+      const req = tp.iv.filter(v => v[2]).map(v => (r + v[0]) % 12);
+      let ok = true;
+      for (const p of req) if (!inPcs.has(p)) { ok = false; break; }
+      if (!ok) continue;
+      let extra = false;
+      inPcs.forEach(p => { if (!set.has(p)) extra = true; });
+      if (extra) continue;
+      let missOpt = 0;
+      set.forEach(p => { if (!inPcs.has(p)) missOpt++; });
+      let score = 100 - missOpt * 6 - set.size;
+      if (inPcs.size === set.size) score += 20;
+      if (bassPc === r) score += 8;
+      out.push({ r: r, t: tp.id, score: score, slash: bassPc !== r ? bassPc : null });
+    }
+  }
+  out.sort((a, b) => b.score - a.score);
+  return out.slice(0, 10);
+}
+function renderRev() {
+  drawRevFret();
+  const keyIdx = [];
+  revKeys.forEach(i => keyIdx.push(i));
+  lightKb2(keyIdx, () => "");
+  const midis = revMidis();
+  if (midis.length === 0) {
+    revSelTextEl.textContent = "指板か鍵盤をタップして音を選択";
+  } else {
+    revSelTextEl.textContent = "選択: " + midis.map(m => NOTE_NAMES[m % 12] + (Math.floor(m / 12) - 1)).join(" ");
+  }
+  revResultsEl.innerHTML = '<span class="clabel">候補</span>';
+  if (midis.length < 2) {
+    if (midis.length === 1) {
+      const sp = document.createElement("span");
+      sp.className = "clabel";
+      sp.textContent = "2音以上で判定します";
+      revResultsEl.appendChild(sp);
+    }
+    return;
+  }
+  const cands = identifyChords(midis);
+  if (!cands.length) {
+    const sp = document.createElement("span");
+    sp.className = "clabel";
+    sp.textContent = "該当なし";
+    revResultsEl.appendChild(sp);
+    return;
+  }
+  cands.forEach(c => {
+    const b = document.createElement("button");
+    b.className = "chip";
+    b.textContent = chordName(c.r, c.t) + (c.slash !== null ? "/" + NOTE_NAMES[c.slash] : "");
+    b.addEventListener("click", () => {
+      setDictMode("chord");
+      showChord(c.r, c.t);
+    });
+    revResultsEl.appendChild(b);
+  });
+}
+async function revBlip(midi) {
+  await ensureAudio();
+  playPluck(midi, audioCtx.currentTime + 0.02, 0.35);
+}
+function toggleRevKey(i) {
+  if (revKeys.has(i)) revKeys.delete(i);
+  else { revKeys.add(i); revBlip(48 + i); }
+  renderRev();
+}
+document.getElementById("revClear").addEventListener("click", () => {
+  revStr = [null, null, null, null, null, null];
+  revKeys.clear();
+  renderRev();
+});
+fbSvg.addEventListener("click", (e) => {
+  if (dictMode !== "rev") return;
+  const rect = fbSvg.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  if (y < FB.TOP - 12 || y > FB.TOP + 5 * FB.GAP + 12) return;
+  let row = Math.round((y - FB.TOP) / FB.GAP);
+  row = Math.max(0, Math.min(5, row));
+  const s = 5 - row;
+  if (x < FB.NUT) {
+    revStr[s] = (revStr[s] === 0) ? null : 0;
+    if (revStr[s] === 0) revBlip(TUNING[s]);
+  } else {
+    let f = Math.floor((x - FB.NUT) / FB.FW) + 1;
+    f = Math.max(1, Math.min(FB.FRETS, f));
+    revStr[s] = (revStr[s] === f) ? null : f;
+    if (revStr[s] === f) revBlip(TUNING[s] + f);
+  }
+  renderRev();
+});
+
+/* ---- コード/スケール切替 ---- */
+const dictBody = document.getElementById("dictBody");
+const segChord = document.getElementById("segChord");
+const segScale = document.getElementById("segScale");
+const segRev = document.getElementById("segRev");
+let dictMode = store.get("gt.dmode", "chord");
+function setDictMode(m) {
+  if (m !== "chord" && m !== "scale" && m !== "rev") m = "chord";
+  dictMode = m;
+  store.set("gt.dmode", m);
+  dictBody.classList.toggle("m-chord", m === "chord");
+  dictBody.classList.toggle("m-scale", m === "scale");
+  dictBody.classList.toggle("m-rev", m === "rev");
+  segChord.classList.toggle("on", m === "chord");
+  segScale.classList.toggle("on", m === "scale");
+  segRev.classList.toggle("on", m === "rev");
+  if (m === "chord") showChord(curRoot, curType, false);
+  else if (m === "scale") showScale(curScaleRoot, curScaleId, false);
+  else renderRev();
+}
+segChord.addEventListener("click", () => setDictMode("chord"));
+segScale.addEventListener("click", () => setDictMode("scale"));
+segRev.addEventListener("click", () => setDictMode("rev"));
+
+/* ================= メモ(スケッチ) ================= */
+const TUNINGS = [
+  { id: "std",   l: "スタンダード", m: [40, 45, 50, 55, 59, 64] },
+  { id: "eb",    l: "半音下げ",     m: [39, 44, 49, 54, 58, 63] },
+  { id: "d",     l: "全音下げ",     m: [38, 43, 48, 53, 57, 62] },
+  { id: "dropd", l: "ドロップD",    m: [38, 45, 50, 55, 59, 64] },
+  { id: "dropc", l: "ドロップC",    m: [36, 43, 48, 53, 57, 62] }
+];
+const TUN_BY_ID = {};
+TUNINGS.forEach(t => TUN_BY_ID[t.id] = t);
+
+let sketches = [];
+try { sketches = JSON.parse(store.get("gt.sketches", "[]")); } catch (e) { sketches = []; }
+if (!Array.isArray(sketches)) sketches = [];
+sketches.forEach(sk => {
+  if (!sk.id) sk.id = String(Math.random()).slice(2, 10);
+  if (typeof sk.name !== "string") sk.name = "スケッチ";
+  if (!Number.isInteger(sk.capo) || sk.capo < 0 || sk.capo > 9) sk.capo = 0;
+  if (!TUN_BY_ID[sk.tun]) sk.tun = "std";
+  if (typeof sk.memo !== "string") sk.memo = "";
+  if (!Number.isFinite(sk.bpm)) sk.bpm = 100;
+  if (!Array.isArray(sk.chords)) sk.chords = [];
+  sk.chords.forEach(c => { if (!Number.isInteger(c.bt) || c.bt < 1 || c.bt > 16) c.bt = 4; });
+});
+
+let curSk = null;
+let memoView = "list";
+let editIdx = -1;
+let editFr = [-1, -1, -1, -1, -1, -1];
+let editBt = 4;
+let editSnap = "";
+function curEditObj() {
+  return {
+    name: edNameEl.value.trim(),
+    fr: editFr.slice(),
+    bt: editBt,
+    sec: edSecEl.value.trim(),
+    memo: edMemoEl.value.trim()
+  };
+}
+let skTimer = null;
+let playCardIdx = -1;
+let chordCardEls = [];
+let pendingAdd = null;
+let pendingBtn = null;
+let ioMode = "";
+
+const mvEls = {
+  list: document.getElementById("memoList"),
+  detail: document.getElementById("memoDetail"),
+  edit: document.getElementById("memoEdit")
+};
+const skNameEl = document.getElementById("skName");
+const skBpmEl = document.getElementById("skBpm");
+const skMemoTextEl = document.getElementById("skMemoText");
+const skPlayBtn = document.getElementById("skPlayBtn");
+const tunBtn = document.getElementById("tunBtn");
+const capoValEl = document.getElementById("capoVal");
+const chordListEl = document.getElementById("chordList");
+const ioPanel = document.getElementById("ioPanel");
+const ioText = document.getElementById("ioText");
+const ioStatus = document.getElementById("ioStatus");
+const edNameEl = document.getElementById("edName");
+const edSecEl = document.getElementById("edSec");
+const edMemoEl = document.getElementById("edMemo");
+const edCandsEl = document.getElementById("edCands");
+const edShapeHintEl = document.getElementById("edShapeHint");
+
+function saveSketches() { store.set("gt.sketches", JSON.stringify(sketches)); }
+function tunOf(sk) { return TUN_BY_ID[sk.tun] || TUNINGS[0]; }
+function setMemoView(v) {
+  if (v !== "detail") { /* 一覧・編集中は再生を止めない理由がないため停止 */ }
+  memoView = v;
+  for (const k in mvEls) mvEls[k].classList.toggle("on", k === v);
+}
+function fretsToText(fr) {
+  const wide = fr.some(f => f >= 10);
+  return fr.map(f => f < 0 ? "x" : String(f)).join(wide ? "-" : "");
+}
+function chordMidisOf(sk, fr) {
+  const tm = tunOf(sk).m;
+  const out = [];
+  for (let s = 0; s < 6; s++) if (fr[s] >= 0) out.push(tm[s] + sk.capo + fr[s]);
+  out.sort((a, b) => a - b);
+  return out;
+}
+async function strum(sk, fr, vol) {
+  await ensureAudio();
+  const t0 = audioCtx.currentTime + 0.03;
+  chordMidisOf(sk, fr).forEach((m, i) => playPluck(m, t0 + i * 0.05, vol));
+}
+
+/* ---- 一覧 ---- */
+let listEdit = false;
+function deleteSketch(sk) {
+  sketches = sketches.filter(s => s !== sk);
+  saveSketches();
+  if (curSk === sk) curSk = null;
+  renderSkList();
+}
+function renderSkList() {
+  const list = document.getElementById("skList");
+  document.getElementById("skListEdit").classList.toggle("on", listEdit);
+  list.innerHTML = "";
+  if (!sketches.length) {
+    const d = document.createElement("div");
+    d.className = "hint";
+    d.textContent = "「新規」からスケッチを作成してください";
+    list.appendChild(d);
+    return;
+  }
+  sketches.forEach(sk => {
+    const b = document.createElement(listEdit ? "div" : "button");
+    b.className = "skrow";
+    const nm = document.createElement("span");
+    nm.className = "nm";
+    nm.textContent = sk.name;
+    b.appendChild(nm);
+    if (listEdit) {
+      const del = document.createElement("button");
+      del.className = "mbtn";
+      del.style.minHeight = "40px";
+      del.textContent = "削除";
+      del.addEventListener("click", () => armAction(del, "本当に削除?", () => deleteSketch(sk)));
+      b.appendChild(del);
+    } else {
+      const cnt = document.createElement("span");
+      cnt.className = "cnt";
+      cnt.textContent = sk.chords.length + "コード";
+      b.appendChild(cnt);
+      b.addEventListener("click", () => openSketch(sk));
+    }
+    list.appendChild(b);
+  });
+}
+document.getElementById("skListEdit").addEventListener("click", () => {
+  listEdit = !listEdit;
+  renderSkList();
+});
+function newSketch() {
+  const sk = { id: Date.now().toString(36), name: "スケッチ" + (sketches.length + 1), capo: 0, tun: "std", memo: "", bpm: 100, chords: [] };
+  sketches.push(sk);
+  saveSketches();
+  return sk;
+}
+document.getElementById("skNew").addEventListener("click", () => openSketch(newSketch()));
+document.getElementById("skBack").addEventListener("click", () => {
+  stopSkPlay();
+  renderSkList();
+  setMemoView("list");
+});
+
+/* ---- 詳細 ---- */
+function openSketch(sk) {
+  curSk = sk;
+  hideIo();
+  renderDetail();
+  setMemoView("detail");
+}
+function renderDetail() {
+  if (!curSk) return;
+  skNameEl.textContent = curSk.name;
+  tunBtn.textContent = tunOf(curSk).l;
+  capoValEl.textContent = "カポ " + curSk.capo;
+  skBpmEl.value = curSk.bpm;
+  skMemoTextEl.value = curSk.memo;
+  renderChordList();
+}
+let sortMode = false;
+function moveChord(i, d) {
+  const j = i + d;
+  if (j < 0 || j >= curSk.chords.length) return;
+  const a = curSk.chords;
+  const tmp = a[j]; a[j] = a[i]; a[i] = tmp;
+  saveSketches();
+  const st = mvEls.detail.scrollTop;
+  renderChordList();
+  mvEls.detail.scrollTop = st;
+}
+function renderChordList() {
+  chordListEl.innerHTML = "";
+  chordCardEls = [];
+  let lastSec = null;
+  curSk.chords.forEach((c, i) => {
+    if (c.sec !== lastSec) {
+      if (c.sec) {
+        const h = document.createElement("div");
+        h.className = "secHead";
+        h.textContent = c.sec;
+        chordListEl.appendChild(h);
+      }
+      lastSec = c.sec;
+    }
+    const b = document.createElement(sortMode ? "div" : "button");
+    b.className = "ccard";
+    const cn = document.createElement("span");
+    cn.className = "cn";
+    cn.textContent = c.name || "(無名)";
+    b.appendChild(cn);
+    if ((c.bt || 4) !== 4) {
+      const cb = document.createElement("span");
+      cb.className = "cbt";
+      cb.textContent = (c.bt || 4) + "拍";
+      b.appendChild(cb);
+    }
+    if (sortMode) {
+      const up = document.createElement("button");
+      up.className = "mbtn";
+      up.style.minHeight = "40px";
+      up.textContent = "↑";
+      up.addEventListener("click", () => moveChord(i, -1));
+      const dn = document.createElement("button");
+      dn.className = "mbtn";
+      dn.style.minHeight = "40px";
+      dn.textContent = "↓";
+      dn.addEventListener("click", () => moveChord(i, 1));
+      b.appendChild(up);
+      b.appendChild(dn);
+    } else {
+      const cf = document.createElement("span");
+      cf.className = "cf";
+      cf.textContent = fretsToText(c.fr);
+      b.appendChild(cf);
+      b.addEventListener("click", () => openEdit(i));
+    }
+    chordListEl.appendChild(b);
+    chordCardEls.push(b);
+  });
+  if (!curSk.chords.length) {
+    const d = document.createElement("div");
+    d.className = "hint";
+    d.textContent = "コードがありません";
+    chordListEl.appendChild(d);
+  }
+}
+document.getElementById("sortBtn").addEventListener("click", (e) => {
+  sortMode = !sortMode;
+  e.currentTarget.classList.toggle("on", sortMode);
+  renderChordList();
+});
+skNameEl.addEventListener("click", () => {
+  if (!curSk) return;
+  const input = document.createElement("input");
+  input.className = "minput";
+  input.value = curSk.name;
+  skNameEl.style.display = "none";
+  skNameEl.parentNode.insertBefore(input, skNameEl);
+  input.focus();
+  input.select();
+  const commit = () => {
+    const v = input.value.trim();
+    if (v) { curSk.name = v; saveSketches(); }
+    input.remove();
+    skNameEl.style.display = "";
+    renderDetail();
+  };
+  input.addEventListener("blur", commit);
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") input.blur(); });
+});
+tunBtn.addEventListener("click", () => {
+  const i = TUNINGS.findIndex(t => t.id === curSk.tun);
+  curSk.tun = TUNINGS[(i + 1) % TUNINGS.length].id;
+  saveSketches();
+  renderDetail();
+});
+document.getElementById("capoMinus").addEventListener("click", () => {
+  curSk.capo = Math.max(0, curSk.capo - 1);
+  saveSketches();
+  renderDetail();
+});
+document.getElementById("capoPlus").addEventListener("click", () => {
+  curSk.capo = Math.min(9, curSk.capo + 1);
+  saveSketches();
+  renderDetail();
+});
+skBpmEl.addEventListener("change", () => {
+  const v = parseFloat(String(skBpmEl.value).replace(/[０-９]/g, ch => "０１２３４５６７８９".indexOf(ch)));
+  if (!isNaN(v)) curSk.bpm = Math.min(260, Math.max(30, Math.round(v)));
+  saveSketches();
+  renderDetail();
+});
+document.getElementById("skMemoBtn").addEventListener("click", () => {
+  skMemoTextEl.style.display = skMemoTextEl.style.display === "none" ? "block" : "none";
+});
+skMemoTextEl.addEventListener("input", () => {
+  curSk.memo = skMemoTextEl.value;
+  saveSketches();
+});
+document.getElementById("skDelete").addEventListener("click", (e) => {
+  if (!curSk) return;
+  armAction(e.currentTarget, "本当に削除?", () => {
+    deleteSketch(curSk);
+    setMemoView("list");
+  });
+});
+
+/* ---- 進行の自動再生 ---- */
+function stopSkPlay() {
+  if (skTimer !== null) { clearTimeout(skTimer); skTimer = null; }
+  if (playCardIdx >= 0) {
+    if (chordCardEls[playCardIdx]) chordCardEls[playCardIdx].classList.remove("playingCard");
+    if (liveRowEls[playCardIdx]) liveRowEls[playCardIdx].classList.remove("playingCard");
+  }
+  playCardIdx = -1;
+  skPlayBtn.textContent = "▶ 再生";
+  skPlayBtn.classList.remove("playing");
+  renderLivePlayBtn();
+  if (!liveOpen) releaseWake();
+}
+async function startSkPlay() {
+  if (!curSk || !curSk.chords.length) return;
+  await ensureAudio();
+  acquireWake();
+  skPlayBtn.textContent = "■ 停止";
+  skPlayBtn.classList.add("playing");
+  playCardIdx = -1;
+  const step = () => {
+    if (playCardIdx >= 0) {
+      if (chordCardEls[playCardIdx]) chordCardEls[playCardIdx].classList.remove("playingCard");
+      if (liveRowEls[playCardIdx]) liveRowEls[playCardIdx].classList.remove("playingCard");
+    }
+    playCardIdx++;
+    if (playCardIdx >= curSk.chords.length) { stopSkPlay(); return; }
+    const c = curSk.chords[playCardIdx];
+    const card = chordCardEls[playCardIdx];
+    if (card) {
+      card.classList.add("playingCard");
+      card.scrollIntoView({ block: "nearest" });
+    }
+    if (liveOpen && liveRowEls[playCardIdx]) {
+      liveRowEls[playCardIdx].classList.add("playingCard");
+      liveRowEls[playCardIdx].scrollIntoView({ block: "center" });
+    }
+    strum(curSk, c.fr, 0.45);
+    skTimer = setTimeout(step, (c.bt || 4) * 60000 / (curSk.bpm || 100));
+  };
+  step();
+  renderLivePlayBtn();
+}
+skPlayBtn.addEventListener("click", () => (skTimer !== null ? stopSkPlay() : startSkPlay()));
+
+/* ---- 本番用大画面ビュー ---- */
+let liveOpen = false;
+let liveRowEls = [];
+const liveSheet = document.getElementById("liveSheet");
+function renderLivePlayBtn() {
+  document.getElementById("livePlay").textContent = skTimer !== null ? "■" : "▶";
+}
+function renderLive() {
+  document.getElementById("liveTitle").textContent = curSk.name;
+  const body = document.getElementById("liveBody");
+  body.innerHTML = "";
+  liveRowEls = [];
+  let lastSec = null;
+  curSk.chords.forEach(c => {
+    if (c.sec !== lastSec) {
+      if (c.sec) {
+        const h = document.createElement("div");
+        h.className = "liveSec";
+        h.textContent = c.sec;
+        body.appendChild(h);
+      }
+      lastSec = c.sec;
+    }
+    const row = document.createElement("div");
+    row.className = "liveRow";
+    const n = document.createElement("span");
+    n.className = "ln";
+    n.textContent = c.name || "—";
+    row.appendChild(n);
+    const f = document.createElement("span");
+    f.className = "lf";
+    f.textContent = fretsToText(c.fr);
+    row.appendChild(f);
+    if ((c.bt || 4) !== 4) {
+      const b = document.createElement("span");
+      b.className = "lb";
+      b.textContent = (c.bt || 4) + "拍";
+      row.appendChild(b);
+    }
+    body.appendChild(row);
+    liveRowEls.push(row);
+  });
+}
+document.getElementById("liveBtn").addEventListener("click", () => {
+  if (!curSk) return;
+  renderLive();
+  liveOpen = true;
+  openSheet(liveSheet);
+  acquireWake();
+  renderLivePlayBtn();
+});
+document.getElementById("liveClose").addEventListener("click", () => closeSheet(liveSheet));
+document.getElementById("livePlay").addEventListener("click", () => {
+  if (skTimer !== null) stopSkPlay();
+  else startSkPlay();
+});
+
+/* ---- コード編集 ---- */
+function openEdit(idx) {
+  stopSkPlay();
+  editIdx = idx;
+  if (idx >= 0) {
+    const c = curSk.chords[idx];
+    editFr = c.fr.slice();
+    editBt = c.bt || 4;
+    edNameEl.value = c.name;
+    edSecEl.value = c.sec;
+    edMemoEl.value = c.memo;
+    document.getElementById("edTitle").textContent = "コード編集";
+    document.getElementById("edEditRow").style.display = "flex";
+    document.getElementById("edSave").textContent = "保存";
+  } else {
+    editFr = [-1, -1, -1, -1, -1, -1];
+    editBt = 4;
+    edNameEl.value = "";
+    edSecEl.value = curSk.chords.length ? curSk.chords[curSk.chords.length - 1].sec : "";
+    edMemoEl.value = "";
+    document.getElementById("edTitle").textContent = "コード追加";
+    document.getElementById("edEditRow").style.display = "none";
+    document.getElementById("edSave").textContent = "追加";
+  }
+  renderSecChips();
+  renderEdBt();
+  redrawEdit();
+  editSnap = JSON.stringify(curEditObj());
+  setMemoView("edit");
+}
+function redrawEdit() {
+  memoFb.dots.innerHTML = "";
+  let minF = 99;
+  for (let s = 0; s < 6; s++) {
+    const f = editFr[s];
+    const y = stringY(s);
+    if (f < 0) {
+      const sz = 4.5;
+      memoFb.dots.appendChild(svgEl("line", { x1: 12 - sz, y1: y - sz, x2: 12 + sz, y2: y + sz, stroke: "#fff", "stroke-width": 1.6 }));
+      memoFb.dots.appendChild(svgEl("line", { x1: 12 - sz, y1: y + sz, x2: 12 + sz, y2: y - sz, stroke: "#fff", "stroke-width": 1.6 }));
+    } else if (f === 0) {
+      memoFb.dots.appendChild(svgEl("circle", { cx: 12, cy: y, r: 6, stroke: "#fff", fill: "none", "stroke-width": 1.6 }));
+    } else {
+      memoFb.dots.appendChild(svgEl("circle", { cx: FB.NUT + (f - 0.5) * FB.FW, cy: y, r: 8, fill: "#fff" }));
+      if (f < minF) minF = f;
+    }
+  }
+  const sc = document.getElementById("mFbScroll");
+  if (minF !== 99 && minF > 9) sc.scrollLeft = FB.NUT + (minF - 2) * FB.FW;
+  renderEdCands();
+}
+function renderEdCands() {
+  edCandsEl.innerHTML = '<span class="clabel">候補</span>';
+  edShapeHintEl.textContent = "";
+  const midis = chordMidisOf(curSk, editFr);
+  if (midis.length < 2) return;
+  const cands = identifyChords(midis).slice(0, 6);
+  cands.forEach(c => {
+    const label = chordName(c.r, c.t) + (c.slash !== null ? "/" + NOTE_NAMES[c.slash] : "");
+    const b = document.createElement("button");
+    b.className = "chip";
+    b.textContent = label;
+    b.addEventListener("click", () => { edNameEl.value = label; });
+    edCandsEl.appendChild(b);
+  });
+  if (curSk.capo > 0) {
+    const tm = tunOf(curSk).m;
+    const shapeMidis = [];
+    for (let s = 0; s < 6; s++) if (editFr[s] >= 0) shapeMidis.push(tm[s] + editFr[s]);
+    shapeMidis.sort((a, b) => a - b);
+    const sc = identifyChords(shapeMidis);
+    if (sc.length) {
+      edShapeHintEl.textContent = "カポ0換算フォーム: " + chordName(sc[0].r, sc[0].t) + (sc[0].slash !== null ? "/" + NOTE_NAMES[sc[0].slash] : "");
+    }
+  }
+}
+memoFb.svg.addEventListener("click", (e) => {
+  if (!pages.memo.classList.contains("active") || memoView !== "edit") return;
+  const rect = memoFb.svg.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  if (y < FB.TOP - 12 || y > FB.TOP + 5 * FB.GAP + 12) return;
+  let row = Math.round((y - FB.TOP) / FB.GAP);
+  row = Math.max(0, Math.min(5, row));
+  const s = 5 - row;
+  if (x < FB.NUT) {
+    editFr[s] = (editFr[s] === 0) ? -1 : 0;
+    if (editFr[s] === 0) revBlip(tunOf(curSk).m[s] + curSk.capo);
+  } else {
+    let f = Math.floor((x - FB.NUT) / FB.FW) + 1;
+    f = Math.max(1, Math.min(FB.FRETS, f));
+    editFr[s] = (editFr[s] === f) ? -1 : f;
+    if (editFr[s] === f) revBlip(tunOf(curSk).m[s] + curSk.capo + f);
+  }
+  redrawEdit();
+});
+function renderSecChips() {
+  const row = document.getElementById("edSecChips");
+  row.innerHTML = "";
+  const secs = [];
+  curSk.chords.forEach(c => { if (c.sec && secs.indexOf(c.sec) < 0) secs.push(c.sec); });
+  secs.forEach(sec => {
+    const b = document.createElement("button");
+    b.className = "chip";
+    b.textContent = sec;
+    b.addEventListener("click", () => { edSecEl.value = sec; });
+    row.appendChild(b);
+  });
+}
+function renderEdBt() { document.getElementById("edBtV").textContent = editBt; }
+document.getElementById("edBtM").addEventListener("click", () => { editBt = Math.max(1, editBt - 1); renderEdBt(); });
+document.getElementById("edBtP").addEventListener("click", () => { editBt = Math.min(16, editBt + 1); renderEdBt(); });
+document.getElementById("edPlay").addEventListener("click", () => strum(curSk, editFr, 0.45));
+document.getElementById("edClear").addEventListener("click", () => {
+  editFr = [-1, -1, -1, -1, -1, -1];
+  redrawEdit();
+});
+document.getElementById("edBack").addEventListener("click", (e) => {
+  const go = () => { renderDetail(); setMemoView("detail"); };
+  if (JSON.stringify(curEditObj()) !== editSnap) {
+    armAction(e.currentTarget, "破棄?", go);
+  } else {
+    go();
+  }
+});
+document.getElementById("edSave").addEventListener("click", () => {
+  const obj = curEditObj();
+  if (editIdx >= 0) curSk.chords[editIdx] = obj;
+  else curSk.chords.push(obj);
+  saveSketches();
+  renderDetail();
+  setMemoView("detail");
+});
+document.getElementById("edUp").addEventListener("click", () => {
+  if (editIdx <= 0) return;
+  const a = curSk.chords;
+  const tmp = a[editIdx - 1]; a[editIdx - 1] = a[editIdx]; a[editIdx] = tmp;
+  editIdx--;
+  saveSketches();
+});
+document.getElementById("edDown").addEventListener("click", () => {
+  if (editIdx < 0 || editIdx >= curSk.chords.length - 1) return;
+  const a = curSk.chords;
+  const tmp = a[editIdx + 1]; a[editIdx + 1] = a[editIdx]; a[editIdx] = tmp;
+  editIdx++;
+  saveSketches();
+});
+document.getElementById("edDup").addEventListener("click", () => {
+  if (editIdx < 0) return;
+  const c = curSk.chords[editIdx];
+  curSk.chords.splice(editIdx + 1, 0, { name: c.name, fr: c.fr.slice(), bt: c.bt || 4, sec: c.sec, memo: c.memo });
+  editIdx++;
+  saveSketches();
+});
+document.getElementById("edDel").addEventListener("click", (e) => {
+  if (editIdx < 0) return;
+  armAction(e.currentTarget, "本当に削除?", () => {
+    curSk.chords.splice(editIdx, 1);
+    saveSketches();
+    renderDetail();
+    setMemoView("detail");
+  });
+});
+document.getElementById("chAdd").addEventListener("click", () => openEdit(-1));
+
+/* ---- TSVエクスポート/インポート ---- */
+function buildTsv(sk) {
+  let out = "スケッチ\t" + sk.name + "\tカポ\t" + sk.capo + "\tチューニング\t" + tunOf(sk).l + "\n";
+  if (sk.memo) out += "メモ\t" + sk.memo.replace(/\n/g, " ") + "\n";
+  out += "セクション\tコード名\t6弦\t5弦\t4弦\t3弦\t2弦\t1弦\t拍\tメモ\n";
+  sk.chords.forEach(c => {
+    out += (c.sec || "") + "\t" + (c.name || "") + "\t" + c.fr.map(f => f < 0 ? "x" : f).join("\t") + "\t" + (c.bt || 4) + "\t" + (c.memo || "") + "\n";
+  });
+  return out;
+}
+function hideIo() {
+  ioPanel.classList.remove("on");
+  ioStatus.textContent = "";
+  ioText.value = "";
+  ioMode = "";
+  const fr = document.getElementById("ioFmtRow");
+  if (fr) { fr.style.display = "none"; document.getElementById("ioScopeRow").style.display = "none"; }
+}
+function mdEsc(s) { return String(s || "").replace(/\|/g, "／").replace(/\n/g, " "); }
+function buildMd(sk) {
+  let out = "## " + mdEsc(sk.name) + " (カポ" + sk.capo + " / " + tunOf(sk).l + " / BPM" + (sk.bpm || 100) + ")\n";
+  if (sk.memo) out += "メモ: " + mdEsc(sk.memo) + "\n";
+  out += "\n| セクション | コード | 6弦 | 5弦 | 4弦 | 3弦 | 2弦 | 1弦 | 拍 | メモ |\n";
+  out += "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n";
+  sk.chords.forEach(c => {
+    out += "| " + mdEsc(c.sec) + " | " + mdEsc(c.name) + " | " + c.fr.map(f => f < 0 ? "x" : f).join(" | ") + " | " + (c.bt || 4) + " | " + mdEsc(c.memo) + " |\n";
+  });
+  return out;
+}
+let ioFmt = "tsv", ioScope = "one";
+function renderIoSel() {
+  document.getElementById("ioFmtTsv").classList.toggle("on", ioFmt === "tsv");
+  document.getElementById("ioFmtMd").classList.toggle("on", ioFmt === "md");
+  document.getElementById("ioScopeOne").classList.toggle("on", ioScope === "one");
+  document.getElementById("ioScopeAll").classList.toggle("on", ioScope === "all");
+}
+async function refreshExport() {
+  const list = ioScope === "all" ? sketches : [curSk];
+  const text = list.map(sk => (ioFmt === "md" ? buildMd(sk) : buildTsv(sk))).join("\n");
+  ioText.value = text;
+  try {
+    await navigator.clipboard.writeText(text);
+    ioStatus.textContent = "クリップボードにコピーしました(下は内容の確認用)";
+  } catch (e) {
+    ioStatus.textContent = "自動コピーできない環境です。下のテキストを手動でコピーしてください";
+  }
+}
+function setIoRows(show) {
+  document.getElementById("ioFmtRow").style.display = show ? "flex" : "none";
+  document.getElementById("ioScopeRow").style.display = show ? "flex" : "none";
+}
+document.getElementById("ioFmtTsv").addEventListener("click", () => { ioFmt = "tsv"; renderIoSel(); refreshExport(); });
+document.getElementById("ioFmtMd").addEventListener("click", () => { ioFmt = "md"; renderIoSel(); refreshExport(); });
+document.getElementById("ioScopeOne").addEventListener("click", () => { ioScope = "one"; renderIoSel(); refreshExport(); });
+document.getElementById("ioScopeAll").addEventListener("click", () => { ioScope = "all"; renderIoSel(); refreshExport(); });
+document.getElementById("skExport").addEventListener("click", () => {
+  ioMode = "out";
+  ioPanel.classList.add("on");
+  document.getElementById("ioRun").style.display = "none";
+  setIoRows(true);
+  renderIoSel();
+  refreshExport();
+});
+document.getElementById("skImport").addEventListener("click", () => {
+  ioMode = "in";
+  ioPanel.classList.add("on");
+  ioText.value = "";
+  document.getElementById("ioRun").style.display = "";
+  setIoRows(false);
+  ioStatus.textContent = "シートからコピーした行を貼り付けて「読み込み」(TSVのみ)";
+});
+document.getElementById("ioClose").addEventListener("click", hideIo);
+function z2h(s) {
+  return String(s).replace(/[０-９]/g, ch => "０１２３４５６７８９".indexOf(ch));
+}
+function parseFretCell(s) {
+  s = z2h(s).trim().toLowerCase();
+  if (s === "" || s === "x" || s === "×" || s === "-" || s === "ｘ") return -1;
+  const n = parseInt(s, 10);
+  if (isNaN(n) || n < 0 || n > 24) return NaN;
+  return n;
+}
+document.getElementById("ioRun").addEventListener("click", () => {
+  const lines = ioText.value.split(/\r?\n/);
+  let added = 0, skipped = 0;
+  lines.forEach(line => {
+    if (!line.trim()) return;
+    const cols = line.split("\t");
+    if (cols[0] === "スケッチ") {
+      if (cols[1]) { curSk.name = cols[1]; }
+      const cp = parseInt(z2h(cols[3] || ""), 10);
+      if (!isNaN(cp) && cp >= 0 && cp <= 9) curSk.capo = cp;
+      const tn = TUNINGS.find(t => t.l === (cols[5] || "").trim());
+      if (tn) curSk.tun = tn.id;
+      return;
+    }
+    if (cols[0] === "メモ" && cols.length >= 2 && cols.length <= 3) { curSk.memo = cols[1]; return; }
+    if (cols[0] === "セクション" && cols[1] === "コード名") return;
+    if (cols.length < 8) { skipped++; return; }
+    const fr = [];
+    let bad = false;
+    for (let i = 2; i <= 7; i++) {
+      const v = parseFretCell(cols[i]);
+      if (isNaN(v)) { bad = true; break; }
+      fr.push(v);
+    }
+    if (bad) { skipped++; return; }
+    let bt = 4, cmemo = "";
+    if (cols.length >= 10) {
+      const b = parseInt(z2h(cols[8]), 10);
+      if (!isNaN(b) && b >= 1 && b <= 16) bt = b;
+      cmemo = (cols[9] || "").trim();
+    } else if (cols.length === 9) {
+      const raw = z2h(cols[8]).trim();
+      if (/^\d+$/.test(raw) && parseInt(raw, 10) >= 1 && parseInt(raw, 10) <= 16) bt = parseInt(raw, 10);
+      else cmemo = (cols[8] || "").trim();
+    }
+    curSk.chords.push({ sec: (cols[0] || "").trim(), name: (cols[1] || "").trim(), fr: fr, bt: bt, memo: cmemo });
+    added++;
+  });
+  saveSketches();
+  renderDetail();
+  ioStatus.textContent = "追加 " + added + "件" + (skipped ? " / スキップ " + skipped + "件" : "");
+});
+
+/* ---- 辞典・逆引きからの追加 ---- */
+const memoPickSheet = document.getElementById("memoPickSheet");
+function flashBtn(btn, text) {
+  const org = btn.textContent;
+  btn.textContent = text;
+  setTimeout(() => { btn.textContent = org; }, 900);
+}
+function openMemoPick(chord, srcBtn) {
+  pendingAdd = chord;
+  pendingBtn = srcBtn;
+  const body = document.getElementById("memoPickBody");
+  body.innerHTML = "";
+  const g = document.createElement("div");
+  g.className = "catGrid";
+  g.style.marginTop = "14px";
+  sketches.forEach(sk => {
+    const b = document.createElement("button");
+    b.textContent = sk.name + " (" + sk.chords.length + ")";
+    b.addEventListener("click", () => addPendingTo(sk));
+    g.appendChild(b);
+  });
+  const nb = document.createElement("button");
+  nb.textContent = "＋ 新規スケッチ";
+  nb.addEventListener("click", () => addPendingTo(newSketch()));
+  g.appendChild(nb);
+  body.appendChild(g);
+  openSheet(memoPickSheet);
+}
+function addPendingTo(sk) {
+  sk.chords.push({ name: pendingAdd.name, fr: pendingAdd.fr.slice(), sec: "", memo: "" });
+  saveSketches();
+  closeSheet(memoPickSheet);
+  if (pendingBtn) flashBtn(pendingBtn, "追加済");
+  if (curSk === sk && memoView === "detail") renderDetail();
+  pendingAdd = null;
+  pendingBtn = null;
+}
+document.getElementById("memoPickClose").addEventListener("click", () => closeSheet(memoPickSheet));
+document.getElementById("chToMemo").addEventListener("click", (e) => {
+  const v = curVoicings[vIdx];
+  if (!v) return;
+  openMemoPick({ name: chordName(curRoot, curType), fr: v.fr.slice() }, e.currentTarget);
+});
+document.getElementById("revToMemo").addEventListener("click", (e) => {
+  const fr = revStr.map(f => f === null ? -1 : f);
+  if (!fr.some(f => f >= 0)) return;
+  const cands = identifyChords(revMidis());
+  const name = cands.length ? chordName(cands[0].r, cands[0].t) + (cands[0].slash !== null ? "/" + NOTE_NAMES[cands[0].slash] : "") : "";
+  openMemoPick({ name: name, fr: fr }, e.currentTarget);
+});
+
+/* ================= 練習 ================= */
+let prMode = store.get("gt.prmode", "a");
+if (prMode !== "a" && prMode !== "b") prMode = "a";
+let prMicOn = false;
+let prStream = null, prAnalyser = null, prSource = null, prTimer = null;
+const prBuf = new Float32Array(4096);
+let prHeldPc = -1, prCandPc = -1, prCandCount = 0, prLastVoiceTime = 0;
+let paIn = 0, paOut = 0, paStreak = 0;
+let paBest = parseInt(store.get("gt.paBest", "0"), 10) || 0;
+let pbQSemi = -1, pbQDeg = 1;
+let pbCorrect = 0, pbTotal = 0, pbStreak = 0, pbLock = false, pbShowBoard = false;
+let pbBest = parseInt(store.get("gt.pbBest", "0"), 10) || 0;
+let prFlashTO = null;
+
+const prBody = document.getElementById("prBody");
+const prTitleEl = document.getElementById("prTitle");
+const prHintEl = document.getElementById("prHint");
+const prFlashEl = document.getElementById("prFlash");
+const prQEl = document.getElementById("prQ");
+const prFbkEl = document.getElementById("prFbk");
+const prMicBtn = document.getElementById("prMicBtn");
+const segPrA = document.getElementById("segPrA");
+const segPrB = document.getElementById("segPrB");
+const segPrC = document.getElementById("segPrC");
+const segPrD = document.getElementById("segPrD");
+const segPrE = document.getElementById("segPrE");
+
+const prFb = createFretboard(document.getElementById("prFbScroll"));
+const prFlashG = svgEl("g", {});
+prFb.svg.appendChild(prFlashG);
+
+function prScalePcs() {
+  const sc = SCALE_BY_ID[curScaleId];
+  return new Set(sc.iv.map(v => (curScaleRoot + v[0]) % 12));
+}
+function drawScaleTo(dots, r, sc) {
+  dots.innerHTML = "";
+  const pcs = new Set(sc.iv.map(v => (r + v[0]) % 12));
+  for (let s = 0; s < 6; s++) {
+    const y = stringY(s);
+    const openPc = TUNING[s] % 12;
+    if (pcs.has(openPc)) {
+      dots.appendChild(svgEl("circle", { cx: 12, cy: y, r: 6, stroke: "#fff", fill: "none", "stroke-width": 1.6 }));
+      if (openPc === r) dots.appendChild(svgEl("circle", { cx: 12, cy: y, r: 2.2, fill: "#fff" }));
+    }
+    for (let f = 1; f <= FB.FRETS; f++) {
+      const pc = (TUNING[s] + f) % 12;
+      if (!pcs.has(pc)) continue;
+      const x = FB.NUT + (f - 0.5) * FB.FW;
+      dots.appendChild(svgEl("circle", { cx: x, cy: y, r: 7, fill: "#fff" }));
+      if (pc === r) dots.appendChild(svgEl("circle", { cx: x, cy: y, r: 2.8, fill: "#000" }));
+    }
+  }
+}
+function drawPrBoard() {
+  prFlashG.innerHTML = "";
+  if (prMode === "a" || pbShowBoard) {
+    drawScaleTo(prFb.dots, curScaleRoot, SCALE_BY_ID[curScaleId]);
+  } else {
+    prFb.dots.innerHTML = "";
+  }
+  document.getElementById("prFbScroll").scrollLeft = 0;
+}
+function flashPc(pc, good) {
+  if (prFlashTO) { clearTimeout(prFlashTO); prFlashTO = null; }
+  prFlashG.innerHTML = "";
+  for (let s = 0; s < 6; s++) {
+    const y = stringY(s);
+    for (let f = 0; f <= FB.FRETS; f++) {
+      if (((TUNING[s] + f) % 12) !== pc) continue;
+      const x = f === 0 ? 12 : FB.NUT + (f - 0.5) * FB.FW;
+      if (good) {
+        prFlashG.appendChild(svgEl("circle", { cx: x, cy: y, r: 11, fill: "none", stroke: "#fff", "stroke-width": 3 }));
+      } else {
+        const sz = 6;
+        prFlashG.appendChild(svgEl("line", { x1: x - sz, y1: y - sz, x2: x + sz, y2: y + sz, stroke: "#fff", "stroke-width": 2.4 }));
+        prFlashG.appendChild(svgEl("line", { x1: x - sz, y1: y + sz, x2: x + sz, y2: y - sz, stroke: "#fff", "stroke-width": 2.4 }));
+      }
+    }
+  }
+  prFlashTO = setTimeout(() => { prFlashG.innerHTML = ""; prFlashTO = null; }, 500);
+}
+function flashWarn() {
+  prFlashEl.classList.add("on");
+  setTimeout(() => prFlashEl.classList.remove("on"), 250);
+}
+
+/* ---- スコア表示 ---- */
+function statCol(value, label) {
+  const d = document.createElement("div");
+  d.className = "stat";
+  const v = document.createElement("div");
+  v.className = "sv";
+  v.textContent = value;
+  const l = document.createElement("div");
+  l.className = "sl";
+  l.textContent = label;
+  d.appendChild(v);
+  d.appendChild(l);
+  return d;
+}
+function renderPaStats() {
+  const el = document.getElementById("paStats");
+  el.innerHTML = "";
+  const total = paIn + paOut;
+  const rate = total ? Math.round(100 * paIn / total) : 0;
+  el.appendChild(statCol(paIn, "イン"));
+  el.appendChild(statCol(paOut, "アウト"));
+  el.appendChild(statCol(rate + "%", "イン率"));
+  el.appendChild(statCol(paStreak, "連続"));
+  el.appendChild(statCol(paBest, "ベスト"));
+}
+function renderPbStats() {
+  const el = document.getElementById("pbStats");
+  el.innerHTML = "";
+  el.appendChild(statCol(pbCorrect, "正解"));
+  el.appendChild(statCol(pbTotal, "出題"));
+  el.appendChild(statCol(pbStreak, "連続"));
+  el.appendChild(statCol(pbBest, "ベスト"));
+}
+
+/* ---- 出題(度数コール) ---- */
+const NAT_DEG_SEMI = { 1: 0, 2: 2, 3: 4, 4: 5, 5: 7, 6: 9, 7: 11 };
+function degLabel(semi, deg) {
+  const d = semi - NAT_DEG_SEMI[deg];
+  let p = "";
+  if (d === -1) p = "♭"; else if (d === 1) p = "♯";
+  else if (d === -2) p = "♭♭"; else if (d === 2) p = "♯♯";
+  return p + deg;
+}
+async function nextQuestion() {
+  prFbkEl.textContent = "";
+  if (curScaleId === "chromatic") {
+    prQEl.textContent = "—";
+    prHintEl.textContent = "クロマチックは度数コール対象外です。他のスケールを選択してください";
+    pbQSemi = -1;
+    return;
+  }
+  prHintEl.textContent = "";
+  const sc = SCALE_BY_ID[curScaleId];
+  const opts = sc.iv.filter(v => v[1] !== 1);
+  if (!opts.length) { pbQSemi = -1; return; }
+  let pick = opts[Math.floor(Math.random() * opts.length)];
+  if (opts.length > 1 && pick[0] === pbQSemi) {
+    pick = opts[(opts.indexOf(pick) + 1) % opts.length];
+  }
+  pbQSemi = pick[0];
+  pbQDeg = pick[1];
+  prQEl.textContent = degLabel(pbQSemi, pbQDeg) + "度";
+  await ensureAudio();
+  playPluck(48 + curScaleRoot, audioCtx.currentTime + 0.03, 0.4);
+}
+
+/* ---- 判定 ---- */
+function onNoteEvent(pc) {
+  if (prMode === "a") {
+    if (prScalePcs().has(pc)) {
+      paIn++;
+      paStreak++;
+      if (paStreak > paBest) { paBest = paStreak; store.set("gt.paBest", paBest); }
+      flashPc(pc, true);
+    } else {
+      paOut++;
+      paStreak = 0;
+      flashWarn();
+      flashPc(pc, false);
+    }
+    renderPaStats();
+  } else {
+    if (pbLock || pbQSemi < 0) return;
+    const target = (curScaleRoot + pbQSemi) % 12;
+    pbTotal++;
+    if (pc === target) {
+      pbCorrect++;
+      pbStreak++;
+      if (pbStreak > pbBest) { pbBest = pbStreak; store.set("gt.pbBest", pbBest); }
+      prFbkEl.textContent = "○ 正解";
+      flashPc(target, true);
+    } else {
+      pbStreak = 0;
+      prFbkEl.textContent = "× 正解は " + spellNote(curScaleRoot, pbQSemi, pbQDeg);
+      flashPc(target, true);
+    }
+    renderPbStats();
+    pbLock = true;
+    setTimeout(() => { pbLock = false; nextQuestion(); }, 1000);
+  }
+}
+function prLoop() {
+  prAnalyser.getFloatTimeDomainData(prBuf);
+  const f = detectPitch(prBuf, audioCtx.sampleRate);
+  if (prMode === "e") { voFrame(f); return; }
+  const now = performance.now();
+  if (f > 0) {
+    const midi = 69 + 12 * Math.log2(f / refPitch);
+    const pc = ((Math.round(midi) % 12) + 12) % 12;
+    prLastVoiceTime = now;
+    if (pc === prCandPc) prCandCount++;
+    else { prCandPc = pc; prCandCount = 1; }
+    if (prCandCount >= 2 && pc !== prHeldPc) {
+      prHeldPc = pc;
+      onNoteEvent(pc);
+    }
+  } else if (now - prLastVoiceTime > 350) {
+    prHeldPc = -1;
+    prCandPc = -1;
+    prCandCount = 0;
+  }
+}
+
+/* ---- マイク ---- */
+async function startPrMic() {
+  prHintEl.textContent = "";
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    prHintEl.textContent = "この環境ではマイクを使用できません。公開URLで開いてください。";
+    return;
+  }
+  await ensureAudio();
+  try {
+    prStream = await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
+    });
+  } catch (e) {
+    prHintEl.textContent = "マイクを使用できません。ブラウザの設定でマイクを許可してください。";
+    return;
+  }
+  prSource = audioCtx.createMediaStreamSource(prStream);
+  prAnalyser = audioCtx.createAnalyser();
+  prAnalyser.fftSize = 4096;
+  prSource.connect(prAnalyser);
+  prMicOn = true;
+  prHeldPc = -1; prCandPc = -1; prCandCount = 0; prLastVoiceTime = 0;
+  prTimer = setInterval(prLoop, 60);
+  prMicBtn.classList.add("playing");
+  acquireWake();
+  if (prMode === "b") nextQuestion();
+  if (prMode === "e") {
+    if (voAsked) {
+      voDeadline = performance.now() + 6000;
+      voHoldStart = 0;
+    }
+    prRefresh();
+  }
+}
+function stopPrMic() {
+  if (!prMicOn && !prStream) return;
+  prMicOn = false;
+  clearInterval(prTimer);
+  if (prStream) { prStream.getTracks().forEach(t => t.stop()); prStream = null; }
+  if (prSource) { prSource.disconnect(); prSource = null; }
+  prAnalyser = null;
+  prMicBtn.classList.remove("playing");
+  releaseWake();
+}
+prMicBtn.addEventListener("click", () => (prMicOn ? stopPrMic() : startPrMic()));
+
+/* ---- モード・操作 ---- */
+function prRefresh() {
+  if (prMode === "e") {
+    const name = scaleName(curScaleRoot, curScaleId);
+    prTitleEl.textContent = name + " ▾";
+    prTitleEl.style.fontSize = (name.length > 11 ? 22 : (name.length > 8 ? 27 : 34)) + "px";
+    renderVoRange();
+    renderVoStats();
+    if (voAsked) {
+      const pcs = new Set(SCALE_BY_ID[curScaleId].iv.map(v => (curScaleRoot + v[0]) % 12));
+      if (voTargetMidi < voLo || voTargetMidi > voHi || !pcs.has(((voTargetMidi % 12) + 12) % 12)) {
+        voAsked = false;
+        voTargetMidi = -1;
+        document.getElementById("voTarget").textContent = "—";
+        document.getElementById("voFbk").textContent = "";
+        document.getElementById("voPlay").textContent = "出題";
+      }
+    }
+    prHintEl.textContent = voAsked ? "" : (prMicOn ? "「出題」で基準音が鳴ります" : "マイクを開始してから「出題」");
+    return;
+  }
+  if (prMode === "d") {
+    const scd = SCALE_BY_ID[curScaleId];
+    if (etAsked && (curScaleId === "chromatic" || !scd.iv.some(v => v[1] !== 1 && v[0] === etSemi))) {
+      etAsked = false;
+      etSemi = -1;
+      etStatusEl.textContent = "—";
+      etFbkEl.textContent = "";
+      document.getElementById("etPlay").textContent = "出題";
+    }
+    const name = scaleName(curScaleRoot, curScaleId);
+    prTitleEl.textContent = name + " ▾";
+    prTitleEl.style.fontSize = (name.length > 11 ? 22 : (name.length > 8 ? 27 : 34)) + "px";
+    renderEtGrid();
+    renderEtStats();
+    if (curScaleId === "chromatic") {
+      etStatusEl.textContent = "—";
+      prHintEl.textContent = "クロマチックは聴音対象外です。他のスケールを選択してください";
+    } else {
+      prHintEl.textContent = etAsked ? "" : "「出題」でルート音→対象音が鳴ります";
+    }
+    return;
+  }
+  if (prMode === "c") {
+    renderRc();
+    renderRcBpm();
+    prHintEl.textContent = "";
+    return;
+  }
+  const name = scaleName(curScaleRoot, curScaleId);
+  prTitleEl.textContent = name + " ▾";
+  prTitleEl.style.fontSize = (name.length > 11 ? 22 : (name.length > 8 ? 27 : 34)) + "px";
+  drawPrBoard();
+  renderPaStats();
+  renderPbStats();
+  if (prMode === "b") {
+    if (prMicOn) nextQuestion();
+    else if (curScaleId === "chromatic") {
+      prQEl.textContent = "—";
+      prHintEl.textContent = "クロマチックは度数コール対象外です";
+    } else {
+      prQEl.textContent = "—";
+      prFbkEl.textContent = "";
+      prHintEl.textContent = "マイクを開始すると出題されます";
+    }
+  } else {
+    prHintEl.textContent = prMicOn ? "" : "マイクを開始して自由に弾いてください";
+  }
+}
+function setPrMode(m) {
+  prMode = (m === "b" || m === "c" || m === "d" || m === "e") ? m : "a";
+  if (prMode !== "c") rcStop();
+  if (prMode === "c" || prMode === "d") stopPrMic();
+  store.set("gt.prmode", prMode);
+  prBody.classList.toggle("m-pa", prMode === "a");
+  prBody.classList.toggle("m-pb", prMode === "b");
+  prBody.classList.toggle("m-pc", prMode === "c");
+  prBody.classList.toggle("m-pd", prMode === "d");
+  prBody.classList.toggle("m-pe", prMode === "e");
+  segPrA.classList.toggle("on", prMode === "a");
+  segPrB.classList.toggle("on", prMode === "b");
+  segPrC.classList.toggle("on", prMode === "c");
+  segPrD.classList.toggle("on", prMode === "d");
+  segPrE.classList.toggle("on", prMode === "e");
+  prRefresh();
+}
+segPrA.addEventListener("click", () => setPrMode("a"));
+segPrB.addEventListener("click", () => setPrMode("b"));
+segPrC.addEventListener("click", () => setPrMode("c"));
+segPrD.addEventListener("click", () => setPrMode("d"));
+segPrE.addEventListener("click", () => setPrMode("e"));
+prTitleEl.addEventListener("click", () => openSheet(scaleSheet));
+document.getElementById("paReset").addEventListener("click", () => {
+  paIn = 0; paOut = 0; paStreak = 0;
+  renderPaStats();
+});
+document.getElementById("pbReset").addEventListener("click", () => {
+  pbCorrect = 0; pbTotal = 0; pbStreak = 0;
+  renderPbStats();
+  if (prMicOn) nextQuestion();
+});
+document.getElementById("pbPass").addEventListener("click", () => {
+  if (pbLock || pbQSemi < 0) return;
+  pbTotal++;
+  pbStreak = 0;
+  prFbkEl.textContent = "パス: 正解は " + spellNote(curScaleRoot, pbQSemi, pbQDeg);
+  flashPc((curScaleRoot + pbQSemi) % 12, true);
+  renderPbStats();
+  pbLock = true;
+  setTimeout(() => { pbLock = false; nextQuestion(); }, 1000);
+});
+document.getElementById("pbBoard").addEventListener("click", (e) => {
+  pbShowBoard = !pbShowBoard;
+  e.currentTarget.classList.toggle("on", pbShowBoard);
+  drawPrBoard();
+});
+
+/* ================= 練習: リズム(タップ判定) ================= */
+let rcOn = false;
+let rcTargetBack = store.get("gt.rcback", "0") === "1";
+let rcTimer = null;
+let rcNextBeat = 0;
+let rcBeat = 0;
+let rcBarNum = 0;
+let rcMuted = false;
+let rcBpmCur = 0;
+let rcTargets = [];
+let rcGood = 0, rcOk = 0, rcMiss = 0;
+let rcRoll = [];
+let rcDevs = [];
+
+const rcScoreEl = document.getElementById("rcScore");
+const rcSubEl = document.getElementById("rcSub");
+const rcFbkEl = document.getElementById("rcFbk");
+const rcStartBtn = document.getElementById("rcStart");
+const rcTgtBtn = document.getElementById("rcTgtBtn");
+const rcBpmV = document.getElementById("rcBpmV");
+const rcPad = document.getElementById("rcPad");
+
+const rcDotEls = [];
+(function buildRcDots() {
+  const box = document.getElementById("rcDots");
+  for (let i = 0; i < 4; i++) {
+    const d = document.createElement("div");
+    d.className = "dot" + (i === 0 ? " accent" : "");
+    box.appendChild(d);
+    rcDotEls.push(d);
+  }
+})();
+
+function outLat() {
+  if (!audioCtx) return 0;
+  return audioCtx.outputLatency || audioCtx.baseLatency || 0;
+}
+function fmtMs(ms) { return (ms > 0 ? "+" : "") + ms + "ms"; }
+function renderRcBpm() {
+  rcBpmV.textContent = formatBpm(rcOn && tr.acc === 1 ? rcBpmCur : bpm);
+}
+function renderRcTgt() {
+  rcTgtBtn.textContent = rcTargetBack ? "裏拍" : "表拍";
+  rcTgtBtn.classList.toggle("on", rcTargetBack);
+}
+function rcFbkSet(t) { rcFbkEl.textContent = t; }
+function trimRoll() { if (rcRoll.length > 16) rcRoll.shift(); }
+function renderRc() {
+  if (rcRoll.length) {
+    const hits = rcRoll.reduce((a, b) => a + b, 0);
+    rcScoreEl.textContent = Math.round(100 * hits / rcRoll.length) + "%";
+  } else {
+    rcScoreEl.textContent = "—";
+  }
+  let sub = "良 " + rcGood + " ・ 可 " + rcOk + " ・ ミス " + rcMiss;
+  if (rcDevs.length) {
+    const avg = Math.round(rcDevs.reduce((a, b) => a + b, 0) / rcDevs.length);
+    sub += " ・ 平均 " + fmtMs(avg) + (avg > 8 ? "(遅れ)" : (avg < -8 ? "(先走り)" : ""));
+  }
+  rcSubEl.textContent = sub;
+}
+function rcScheduleDot(beat, time) {
+  const delay = Math.max(0, (time - audioCtx.currentTime) * 1000);
+  setTimeout(() => {
+    if (!rcOn) return;
+    for (let i = 0; i < 4; i++) rcDotEls[i].classList.toggle("on", i === beat);
+  }, delay);
+}
+function rcScheduleBpm(v, time) {
+  const delay = Math.max(0, (time - audioCtx.currentTime) * 1000);
+  setTimeout(() => { if (rcOn && tr.acc === 1) rcBpmV.textContent = formatBpm(v); }, delay);
+}
+function rcBarStart() {
+  if (rcBarNum >= 1) {
+    if (tr.mute === 1) {
+      const cyc = tr.on + tr.off;
+      rcMuted = ((rcBarNum - 1) % cyc) >= tr.on;
+    } else if (tr.mute === 2) {
+      rcMuted = Math.random() * 100 < tr.prob;
+    } else {
+      rcMuted = false;
+    }
+    if (tr.acc === 1 && (rcBarNum - 1) > 0 && (rcBarNum - 1) % tr.every === 0) {
+      if (rcBpmCur < tr.target) rcBpmCur = Math.min(tr.target, rcBpmCur + tr.step);
+      else if (rcBpmCur > tr.target) rcBpmCur = Math.max(tr.target, rcBpmCur - tr.step);
+      rcScheduleBpm(rcBpmCur, rcNextBeat);
+    }
+  } else {
+    rcMuted = false;
+  }
+  if (rcBarNum === 1) rcFbkSet("");
+  rcBarNum++;
+}
+function rcLoop() {
+  const now = audioCtx.currentTime;
+  while (rcNextBeat < now + 0.12) {
+    if (rcBeat === 0) rcBarStart();
+    const spb = 60 / rcBpmCur;
+    if (!rcMuted) playClick(rcNextBeat, rcBeat === 0 ? "accent" : "main");
+    if (rcBarNum >= 2) { /* カウントイン(1小節目)は判定なし */
+      const t = rcTargetBack ? rcNextBeat + spb / 2 : rcNextBeat;
+      rcTargets.push({ t: t, judged: false });
+    }
+    rcScheduleDot(rcBeat, rcNextBeat);
+    rcNextBeat += spb;
+    rcBeat = (rcBeat + 1) % 4;
+  }
+  const lat = outLat();
+  let changed = false;
+  for (const tg of rcTargets) {
+    if (!tg.judged && now > tg.t + lat + 0.13) {
+      tg.judged = true;
+      rcMiss++;
+      rcRoll.push(0);
+      trimRoll();
+      rcFbkSet("ミス(見逃し)");
+      changed = true;
+    }
+  }
+  if (changed) renderRc();
+  rcTargets = rcTargets.filter(tg => !(tg.judged && tg.t < now - 1));
+}
+function rcTick() {
+  const t = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  osc.frequency.value = 350;
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(0.12, t + 0.002);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.03);
+  osc.connect(g).connect(audioCtx.destination);
+  osc.start(t);
+  osc.stop(t + 0.04);
+}
+rcPad.addEventListener("pointerdown", async (e) => {
+  e.preventDefault();
+  await ensureAudio();
+  rcTick();
+  if (!rcOn) return;
+  const now = audioCtx.currentTime;
+  const lat = outLat();
+  let best = null, bestD = 0, bestAbs = 1e9;
+  for (const tg of rcTargets) {
+    if (tg.judged) continue;
+    const d = now - (tg.t + lat);
+    const a = Math.abs(d);
+    if (a < bestAbs) { bestAbs = a; bestD = d; best = tg; }
+  }
+  if (best && bestAbs <= 0.110) {
+    best.judged = true;
+    const ms = Math.round(bestD * 1000);
+    rcDevs.push(ms);
+    if (rcDevs.length > 16) rcDevs.shift();
+    if (bestAbs <= 0.050) { rcGood++; rcFbkSet("良 " + fmtMs(ms)); }
+    else { rcOk++; rcFbkSet("可 " + fmtMs(ms)); }
+    rcRoll.push(1);
+  } else {
+    rcMiss++;
+    rcRoll.push(0);
+    rcFbkSet("ミス");
+  }
+  trimRoll();
+  renderRc();
+});
+async function rcStart() {
+  await ensureAudio();
+  acquireWake();
+  rcOn = true;
+  rcBeat = 0;
+  rcBarNum = 0;
+  rcMuted = false;
+  rcBpmCur = bpm;
+  rcTargets = [];
+  rcNextBeat = audioCtx.currentTime + 0.1;
+  rcTimer = setInterval(rcLoop, 25);
+  rcStartBtn.textContent = "ストップ";
+  rcStartBtn.classList.add("playing");
+  rcFbkSet("カウントイン…");
+  renderRcBpm();
+}
+function rcStop() {
+  if (!rcOn && rcTimer === null) return;
+  rcOn = false;
+  if (rcTimer !== null) { clearInterval(rcTimer); rcTimer = null; }
+  rcStartBtn.textContent = "スタート";
+  rcStartBtn.classList.remove("playing");
+  rcDotEls.forEach(d => d.classList.remove("on"));
+  releaseWake();
+  renderRcBpm();
+}
+rcStartBtn.addEventListener("click", () => (rcOn ? rcStop() : rcStart()));
+document.getElementById("rcReset").addEventListener("click", () => {
+  rcGood = 0; rcOk = 0; rcMiss = 0;
+  rcRoll = []; rcDevs = [];
+  rcFbkSet("");
+  renderRc();
+});
+rcTgtBtn.addEventListener("click", () => {
+  rcTargetBack = !rcTargetBack;
+  store.set("gt.rcback", rcTargetBack ? "1" : "0");
+  renderRcTgt();
+});
+document.getElementById("rcTrain").addEventListener("click", () => {
+  renderTrain();
+  openSheet(trainSheet);
+});
+holdButton(document.getElementById("rcBpmM"), -1);
+holdButton(document.getElementById("rcBpmP"), +1);
+renderRcTgt();
+renderRc();
+
+/* ================= 練習: 聴音 ================= */
+let etSemi = -1, etDeg = 1;
+let etCorrect = 0, etTotal = 0, etStreak = 0;
+let etLock = false, etAsked = false;
+let etBest = parseInt(store.get("gt.etBest", "0"), 10) || 0;
+
+const etStatusEl = document.getElementById("etStatus");
+const etFbkEl = document.getElementById("etFbk");
+const etGridEl = document.getElementById("etGrid");
+const etPlayBtn = document.getElementById("etPlay");
+
+function renderEtStats() {
+  const el = document.getElementById("etStats");
+  el.innerHTML = "";
+  el.appendChild(statCol(etCorrect, "正解"));
+  el.appendChild(statCol(etTotal, "出題"));
+  el.appendChild(statCol(etStreak, "連続"));
+  el.appendChild(statCol(etBest, "ベスト"));
+}
+function renderEtGrid() {
+  etGridEl.innerHTML = "";
+  if (curScaleId === "chromatic") return;
+  const sc = SCALE_BY_ID[curScaleId];
+  sc.iv.filter(v => v[1] !== 1).forEach(v => {
+    const b = document.createElement("button");
+    b.textContent = degLabel(v[0], v[1]);
+    b.addEventListener("click", () => etAnswer(v[0], v[1]));
+    etGridEl.appendChild(b);
+  });
+}
+async function etPlayQuestion(newQ) {
+  if (curScaleId === "chromatic") return;
+  await ensureAudio();
+  if (newQ) {
+    const sc = SCALE_BY_ID[curScaleId];
+    const opts = sc.iv.filter(v => v[1] !== 1);
+    if (!opts.length) return;
+    let pick = opts[Math.floor(Math.random() * opts.length)];
+    if (opts.length > 1 && pick[0] === etSemi) {
+      pick = opts[(opts.indexOf(pick) + 1) % opts.length];
+    }
+    etSemi = pick[0];
+    etDeg = pick[1];
+    etAsked = true;
+    etFbkEl.textContent = "";
+    etStatusEl.textContent = "?";
+    etPlayBtn.textContent = "もう一度聴く";
+    prHintEl.textContent = "";
+  }
+  const t0 = audioCtx.currentTime + 0.05;
+  const rootMidi = 48 + curScaleRoot;
+  playPluck(rootMidi, t0, 0.45);
+  playPluck(rootMidi + etSemi, t0 + 0.65, 0.45);
+}
+function etJudge(correct) {
+  etTotal++;
+  const label = degLabel(etSemi, etDeg) + " (" + spellNote(curScaleRoot, etSemi, etDeg) + ")";
+  if (correct) {
+    etCorrect++;
+    etStreak++;
+    if (etStreak > etBest) { etBest = etStreak; store.set("gt.etBest", etBest); }
+    etStatusEl.textContent = "○";
+    etFbkEl.textContent = "正解 " + label;
+  } else {
+    etStreak = 0;
+    etStatusEl.textContent = "×";
+    etFbkEl.textContent = "正解は " + label;
+  }
+  renderEtStats();
+  etLock = true;
+  setTimeout(() => { etLock = false; etPlayQuestion(true); }, 1200);
+}
+function etAnswer(semi, deg) {
+  if (etLock || !etAsked || etSemi < 0) return;
+  etJudge(semi === etSemi);
+}
+etPlayBtn.addEventListener("click", () => {
+  if (etLock) return;
+  if (!etAsked || etSemi < 0) etPlayQuestion(true);
+  else etPlayQuestion(false);
+});
+document.getElementById("etPass").addEventListener("click", () => {
+  if (etLock || !etAsked || etSemi < 0) return;
+  etJudge(false);
+});
+document.getElementById("etReset").addEventListener("click", () => {
+  etCorrect = 0; etTotal = 0; etStreak = 0;
+  etAsked = false; etSemi = -1;
+  etStatusEl.textContent = "—";
+  etFbkEl.textContent = "";
+  etPlayBtn.textContent = "出題";
+  renderEtStats();
+});
+
+/* ================= 練習: ボーカル ================= */
+let voLo = parseInt(store.get("gt.voLo", "45"), 10);
+let voHi = parseInt(store.get("gt.voHi", "69"), 10);
+if (isNaN(voLo)) voLo = 45;
+if (isNaN(voHi)) voHi = 69;
+voLo = Math.min(82, Math.max(24, voLo));
+voHi = Math.min(84, Math.max(26, voHi));
+if (voHi - voLo < 2) voHi = voLo + 2;
+let voTargetMidi = -1;
+let voAsked = false, voLock = false;
+let voCorrect = 0, voTotal = 0, voStreak = 0;
+let voBest = parseInt(store.get("gt.voBest", "0"), 10) || 0;
+let voDevs = [];
+let voGateT = 0;
+let voHoldStart = 0, voHoldSum = 0, voHoldN = 0;
+let voDeadline = 0;
+
+const voTargetEl = document.getElementById("voTarget");
+const voLiveEl = document.getElementById("voLive");
+const voFbkEl = document.getElementById("voFbk");
+const voDot = document.getElementById("voDot");
+const voPlayBtn = document.getElementById("voPlay");
+
+function midiName(m) { return NOTE_NAMES[((m % 12) + 12) % 12] + (Math.floor(m / 12) - 1); }
+function fmtCt(v) { return (v > 0 ? "+" : "") + v; }
+function renderVoRange() {
+  document.getElementById("voLoV").textContent = "下限 " + midiName(voLo);
+  document.getElementById("voHiV").textContent = "上限 " + midiName(voHi);
+}
+function voSaveRange() {
+  store.set("gt.voLo", voLo);
+  store.set("gt.voHi", voHi);
+  renderVoRange();
+}
+document.getElementById("voLoM").addEventListener("click", () => { voLo = Math.max(24, voLo - 1); if (voHi - voLo < 2) voHi = voLo + 2; voSaveRange(); });
+document.getElementById("voLoP").addEventListener("click", () => { voLo = Math.min(voHi - 2, voLo + 1); voSaveRange(); });
+document.getElementById("voHiM").addEventListener("click", () => { voHi = Math.max(voLo + 2, voHi - 1); voSaveRange(); });
+document.getElementById("voHiP").addEventListener("click", () => { voHi = Math.min(84, voHi + 1); voSaveRange(); });
+
+function renderVoStats() {
+  const el = document.getElementById("voStats");
+  el.innerHTML = "";
+  el.appendChild(statCol(voCorrect, "正解"));
+  el.appendChild(statCol(voTotal, "出題"));
+  el.appendChild(statCol(voStreak, "連続"));
+  el.appendChild(statCol(voBest, "ベスト"));
+  if (voDevs.length) {
+    const avg = Math.round(voDevs.reduce((a, b) => a + b, 0) / voDevs.length);
+    el.appendChild(statCol(fmtCt(avg), avg > 8 ? "平均(高め)" : (avg < -8 ? "平均(低め)" : "平均セント")));
+  }
+}
+function voPick() {
+  const sc = SCALE_BY_ID[curScaleId];
+  const pcs = new Set(sc.iv.map(v => (curScaleRoot + v[0]) % 12));
+  const cands = [];
+  for (let m = voLo; m <= voHi; m++) if (pcs.has(m % 12)) cands.push(m);
+  if (!cands.length) return -1;
+  let m = cands[Math.floor(Math.random() * cands.length)];
+  if (cands.length > 1 && m === voTargetMidi) {
+    m = cands[(cands.indexOf(m) + 1) % cands.length];
+  }
+  return m;
+}
+function voPlayTone() {
+  const t = audioCtx.currentTime + 0.03;
+  const g = audioCtx.createGain();
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(0.3, t + 0.03);
+  g.gain.setValueAtTime(0.3, t + 0.85);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 1.0);
+  g.connect(audioCtx.destination);
+  const base = refPitch * Math.pow(2, (voTargetMidi - 69) / 12);
+  [[1, 1], [2, 0.45], [3, 0.22]].forEach(p => {
+    const o = audioCtx.createOscillator();
+    o.type = "sine";
+    o.frequency.value = base * p[0];
+    const pg = audioCtx.createGain();
+    pg.gain.value = p[1];
+    o.connect(pg).connect(g);
+    o.start(t);
+    o.stop(t + 1.05);
+  });
+  voGateT = t + 1.15;
+  voDeadline = performance.now() + (voGateT - audioCtx.currentTime) * 1000 + 6000;
+  voHoldStart = 0;
+  voHoldSum = 0;
+  voHoldN = 0;
+}
+async function voQuestion(newQ) {
+  await ensureAudio();
+  if (newQ) {
+    const m = voPick();
+    if (m < 0) {
+      prHintEl.textContent = "音域内に出題できる音がありません(音域かスケールを見直してください)";
+      return;
+    }
+    voTargetMidi = m;
+    voAsked = true;
+    voFbkEl.textContent = "";
+    voTargetEl.textContent = midiName(m);
+    voPlayBtn.textContent = "もう一度聴く";
+    voLiveEl.textContent = "";
+    voDot.style.visibility = "hidden";
+    prHintEl.textContent = prMicOn ? "" : "マイクを開始すると判定できます";
+  }
+  voPlayTone();
+}
+function voJudge(kind, avg) {
+  voTotal++;
+  if (kind === "miss" || kind === "pass") {
+    voStreak = 0;
+    voFbkEl.textContent = kind === "pass" ? "パス" : "ミス(時間切れ)";
+  } else {
+    voCorrect++;
+    voStreak++;
+    if (voStreak > voBest) { voBest = voStreak; store.set("gt.voBest", voBest); }
+    const c = Math.round(avg);
+    voDevs.push(c);
+    if (voDevs.length > 16) voDevs.shift();
+    voFbkEl.textContent = (kind === "good" ? "良 " : "可 ") + fmtCt(c) + "セント";
+  }
+  renderVoStats();
+  voDot.style.visibility = "hidden";
+  voLiveEl.textContent = "";
+  voLock = true;
+  setTimeout(() => { voLock = false; voQuestion(true); }, 1200);
+}
+function voFrame(freq) {
+  if (!voAsked || voLock || voTargetMidi < 0) {
+    voDot.style.visibility = "hidden";
+    return;
+  }
+  if (audioCtx.currentTime < voGateT) {
+    voLiveEl.textContent = "…";
+    return;
+  }
+  const nowPerf = performance.now();
+  if (freq > 0) {
+    const midiF = 69 + 12 * Math.log2(freq / refPitch);
+    const cents = (midiF - voTargetMidi) * 100;
+    const near = Math.round(midiF);
+    voLiveEl.textContent = midiName(near) + " " + fmtCt(Math.round(cents));
+    const clamped = Math.max(-100, Math.min(100, cents));
+    voDot.style.left = (50 + clamped / 2) + "%";
+    voDot.style.visibility = "visible";
+    if (Math.abs(cents) <= 70) {
+      if (voHoldStart === 0) { voHoldStart = nowPerf; voHoldSum = 0; voHoldN = 0; }
+      voHoldSum += cents;
+      voHoldN++;
+      if (nowPerf - voHoldStart >= 500) {
+        const avg = voHoldSum / voHoldN;
+        voJudge(Math.abs(avg) <= 30 ? "good" : "ok", avg);
+        return;
+      }
+    } else {
+      voHoldStart = 0;
+    }
+  } else {
+    voHoldStart = 0;
+    voDot.style.visibility = "hidden";
+    voLiveEl.textContent = "";
+  }
+  if (nowPerf > voDeadline) voJudge("miss", null);
+}
+voPlayBtn.addEventListener("click", () => {
+  if (voLock) return;
+  if (!voAsked || voTargetMidi < 0) voQuestion(true);
+  else voQuestion(false);
+});
+document.getElementById("voPass").addEventListener("click", () => {
+  if (voLock || !voAsked || voTargetMidi < 0) return;
+  voJudge("pass", null);
+});
+document.getElementById("voReset").addEventListener("click", () => {
+  voCorrect = 0; voTotal = 0; voStreak = 0;
+  voDevs = [];
+  voAsked = false; voTargetMidi = -1;
+  voTargetEl.textContent = "—";
+  voFbkEl.textContent = "";
+  voLiveEl.textContent = "";
+  voDot.style.visibility = "hidden";
+  voPlayBtn.textContent = "出題";
+  renderVoStats();
+});
+
+/* ================= 全体 ================= */
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) {
+    if (playing) stopMetro();
+    if (micOn) stopTuner();
+    stopSkPlay();
+    stopPrMic();
+    rcStop();
+    stopAllVoices();
+  } else if (liveOpen) {
+    acquireWake();
+  }
+});
+
+setBpm(bpm);
+renderDots();
+beatBtn.textContent = beatsPerBar + "拍子";
+renderSub();
+renderTrain();
+renderMode();
+renderRef();
+renderOctRow();
+renderHist();
+let lastChord = { r: 0, t: "" };
+try { lastChord = JSON.parse(store.get("gt.lastChord", '{"r":0,"t":""}')); } catch (e) {}
+if (!TYPE_BY_ID[lastChord.t] && lastChord.t !== "") lastChord = { r: 0, t: "" };
+curRoot = lastChord.r; curType = lastChord.t;
+let lastScale = { r: 0, id: "major" };
+try { lastScale = JSON.parse(store.get("gt.lastScale", '{"r":0,"id":"major"}')); } catch (e) {}
+if (!SCALE_BY_ID[lastScale.id]) lastScale = { r: 0, id: "major" };
+curScaleRoot = lastScale.r; curScaleId = lastScale.id;
+setDictMode(dictMode);
+renderSkList();
+setMemoView("list");
+setPrMode(prMode);
+showTab(store.get("gt.tab", "metro"));
+</script>
+<script>
+if ("serviceWorker" in navigator && location.protocol === "https:") {
+  navigator.serviceWorker.register("./sw.js").catch(function () {});
+}
+</script>
+</body>
+</html>
