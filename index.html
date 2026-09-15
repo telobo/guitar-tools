@@ -136,9 +136,6 @@
   .dictrow button { min-height: 46px; font-size: 15px; border-radius: 12px; }
   .vlabel { flex: 1.4; display: flex; align-items: center; justify-content: center; font-size: 14px; }
   .nameArea { display: flex; align-items: center; gap: 8px; padding: 0 12px; }
-  .sugCol { flex: 0 0 88px; display: flex; flex-direction: column; gap: 6px; }
-  .sugHead { font-size: 11px; text-align: center; }
-  .schip { min-height: 34px; font-size: 13px; border-radius: 10px; padding: 0 4px; }
   .bigName { flex: 1; text-align: center; font-weight: 250; line-height: 1.1; }
   .chordTones { text-align: center; font-size: 14px; }
   .kb2 { position: relative; height: 76px; width: 100%; }
@@ -185,8 +182,8 @@
   .secHead { font-size: 12px; margin-top: 6px; }
   .minput {
     background: #000; color: #fff;
-    border: 2px solid #fff; border-radius: 12px;
-    min-height: 46px; padding: 0 12px;
+    border: none; border-bottom: 2px solid #fff; border-radius: 0;
+    min-height: 46px; padding: 0 6px;
     font-family: inherit; font-size: 16px; flex: 1;
     outline: none;
   }
@@ -244,11 +241,34 @@
   /* ---- メモ拍数・本番ビュー ---- */
   .cbt { font-size: 12px; flex: 0 0 auto; }
   .liveSec { font-size: 15px; margin: 18px 0 6px; }
-  .liveRow { display: flex; align-items: baseline; gap: 14px; padding: 10px 6px; border-radius: 12px; }
-  .liveRow .ln { font-size: 40px; font-weight: 250; line-height: 1.1; }
-  .liveRow .lf { font-size: 16px; font-variant-numeric: tabular-nums; letter-spacing: 0.06em; }
-  .liveRow .lb { font-size: 14px; }
+  .liveRow { display: flex; align-items: baseline; gap: 16px; padding: 12px 8px; border-radius: 12px; }
+  .liveRow .ln { font-size: 44px; font-weight: 250; line-height: 1.1; }
+  .liveRow .lf { font-size: 22px; font-variant-numeric: tabular-nums; letter-spacing: 0.06em; }
+  .liveRow .lb { font-size: 16px; }
   .liveRow.playingCard { background: #fff; color: #000; }
+
+  /* ---- デザインパス: 階層・フェード・余白 ---- */
+  button.primary { background: #fff; color: #000; }
+  button.primary.playing, button.primary.on { background: #000; color: #fff; }
+  button.ghost { border: none; background: none; }
+  button.ghost.on { background: #fff; color: #000; }
+  .gapTop { margin-top: 14px; }
+  #chScales { margin-top: 14px; }
+  #histRow { margin-top: 14px; }
+  .chordList { margin-top: 8px; }
+  .fb-scroll { display: flex; }
+  .chips:not(.wrapchips)::after,
+  .fb-scroll::after {
+    content: "";
+    position: sticky;
+    right: 0;
+    flex: 0 0 24px;
+    width: 24px;
+    margin-left: -24px;
+    align-self: stretch;
+    background: linear-gradient(to left, #000, rgba(0, 0, 0, 0));
+    pointer-events: none;
+  }
 </style>
 </head>
 <body>
@@ -263,30 +283,22 @@
   <div class="controls">
     <div class="hint" id="metroHint"></div>
     <div class="row">
-      <label class="vol">表<input type="range" id="volMain" min="0" max="100"></label>
-      <label class="vol">細<input type="range" id="volOff" min="0" max="100"></label>
-    </div>
-    <div class="row">
       <button class="sub" id="beatBtn">4拍子</button>
       <button class="sub" id="subBtn">細分</button>
       <button class="sub" id="tapBtn">タップ</button>
-      <button class="sub" id="trainBtn">訓練</button>
+      <button class="sub" id="trainBtn">設定</button>
     </div>
     <div class="row">
       <button class="step" id="minusBtn" aria-label="テンポを下げる">−</button>
       <button class="step" id="plusBtn" aria-label="テンポを上げる">+</button>
     </div>
-    <button class="main" id="startBtn">▶ スタート</button>
+    <button class="main primary" id="startBtn">▶ スタート</button>
   </div>
 </div>
 
 <!-- ============ チューナー ============ -->
 <div class="page" id="page-tuner">
   <div class="tuner-top">
-    <div class="piano-wrap">
-      <div class="piano" id="piano"></div>
-      <div class="octRow" id="octRow"><span class="lbl">オクターブ</span></div>
-    </div>
     <div class="noteBox" id="noteBox">
       <div class="stringLabel" id="stringLabel"></div>
       <div class="noteName" id="noteName">—</div>
@@ -296,14 +308,18 @@
       <div class="needle" id="needle"></div>
       <div class="pivot"></div>
     </div>
+    <div class="piano-wrap">
+      <div class="piano" id="piano"></div>
+      <div class="octRow" id="octRow"><span class="lbl">オクターブ</span></div>
+    </div>
   </div>
   <div class="controls">
     <div class="hint" id="tunerHint"></div>
     <div class="row">
-      <button class="sub" id="modeBtn">クロマチック</button>
+      <button class="sub" id="modeBtn" style="flex:2">クロマチック</button>
       <button class="sub" id="refBtn">440Hz</button>
     </div>
-    <button class="main micbtn" id="tunerBtn" aria-label="マイク オン/オフ">
+    <button class="main micbtn primary" id="tunerBtn" aria-label="マイク オン/オフ">
       <svg class="ic ic-off" viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
       <svg class="ic ic-on" viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
     </button>
@@ -323,22 +339,18 @@
       <button id="vPrev">◀</button>
       <div class="vlabel" id="vLabel">押さえ方 1/1</div>
       <button id="vNext">▶</button>
-      <button id="playBtn">再生</button>
-      <button id="chToMemo">メモ+</button>
     </div>
-    <div class="chips only-chord" id="topRow"><span class="clabel">トップ</span></div>
     <div class="nameArea only-chord">
-      <div class="sugCol">
-        <div class="sugHead">前</div>
-        <div class="sugList" id="sugPrev" style="display:flex;flex-direction:column;gap:6px;"></div>
-      </div>
       <div class="bigName" id="chordTitle">C</div>
-      <div class="sugCol">
-        <div class="sugHead">次</div>
-        <div class="sugList" id="sugNext" style="display:flex;flex-direction:column;gap:6px;"></div>
-      </div>
     </div>
     <div class="chordTones only-chord" id="chordTones"></div>
+    <div class="dictrow only-chord gapTop">
+      <button id="playBtn">再生</button>
+      <button id="chToMemo">メモ+</button>
+      <button id="topBtn">トップ</button>
+    </div>
+    <div class="chips only-chord" id="topRow" style="display:none"><span class="clabel">トップ</span></div>
+    <div class="chips only-chord" id="sugRow"></div>
     <div class="chips wrapchips only-chord" id="chScales"><span class="clabel">スケール</span></div>
     <div class="dictrow only-scale">
       <button id="rootTglBtn">ルート</button>
@@ -352,7 +364,7 @@
     <div class="chips wrapchips only-scale" id="scDia"><span class="clabel">ダイアトニック</span></div>
     <div class="dictrow only-rev">
       <button id="revToMemo">メモへ追加</button>
-      <button id="revClear">クリア</button>
+      <button class="ghost" id="revClear">クリア</button>
     </div>
     <div class="chordTones only-rev" id="revSelText">指板か鍵盤をタップして音を選択</div>
     <div class="chips wrapchips only-rev" id="revResults"><span class="clabel">候補</span></div>
@@ -373,8 +385,9 @@
   </div>
   <div class="mv" id="memoDetail">
     <div class="memoHead">
-      <button class="mbtn" id="skBack">←</button>
+      <button class="mbtn ghost" id="skBack">←</button>
       <div class="mtitle" id="skName">名称</div>
+      <button class="mbtn" id="chAdd">＋ 追加</button>
     </div>
     <div class="dictrow">
       <button id="tunBtn" style="flex:2">スタンダード</button>
@@ -383,15 +396,14 @@
       <button class="tstep" id="capoPlus">＋</button>
     </div>
     <div class="dictrow">
-      <button id="skPlayBtn">▶ 再生</button>
+      <button class="primary" id="skPlayBtn">▶ 再生</button>
       <input class="minput" id="skBpm" inputmode="numeric" style="flex:0.6" aria-label="BPM">
-      <button id="skMemoBtn">メモ</button>
       <button id="liveBtn">本番</button>
     </div>
     <textarea class="mtext" id="skMemoText" placeholder="スケッチメモ" style="display:none"></textarea>
     <div class="chordList" id="chordList"></div>
-    <button class="mbtn addBtn" id="chAdd">＋ コード追加</button>
-    <div class="dictrow">
+    <div class="dictrow gapTop">
+      <button id="skMemoBtn">メモ</button>
       <button id="sortBtn">並替</button>
       <button id="skExport">出力</button>
       <button id="skImport">取込</button>
@@ -409,27 +421,28 @@
       <textarea class="mtext" id="ioText"></textarea>
       <div class="row">
         <button class="mbtn" id="ioRun" style="flex:1">読み込み</button>
-        <button class="mbtn" id="ioClose" style="flex:1">閉じる</button>
+        <button class="mbtn ghost" id="ioClose" style="flex:1">閉じる</button>
       </div>
       <div class="hint" id="ioStatus"></div>
     </div>
   </div>
   <div class="mv" id="memoEdit">
     <div class="memoHead">
-      <button class="mbtn" id="edBack">←</button>
+      <button class="mbtn ghost" id="edBack">←</button>
       <div class="mtitle" id="edTitle">コード追加</div>
+      <button class="mbtn primary" id="edSave">保存</button>
     </div>
     <div class="fb-scroll" id="mFbScroll"></div>
     <div class="chips wrapchips" id="edCands"><span class="clabel">候補</span></div>
     <div class="hint" id="edShapeHint"></div>
     <div class="formrow"><span class="flabel">名前</span><input class="minput" id="edName"></div>
+    <div class="formrow"><span class="flabel">拍数</span><button class="tstep" id="edBtM">−</button><span class="tval" id="edBtV">4</span><button class="tstep" id="edBtP">+</button></div>
     <div class="formrow"><span class="flabel">セクション</span><input class="minput" id="edSec"></div>
     <div class="chips" id="edSecChips"></div>
     <div class="formrow"><span class="flabel">メモ</span><input class="minput" id="edMemo"></div>
-    <div class="formrow"><span class="flabel">拍数</span><button class="tstep" id="edBtM">−</button><span class="tval" id="edBtV">4</span><button class="tstep" id="edBtP">+</button></div>
     <div class="dictrow">
       <button id="edPlay">試聴</button>
-      <button id="edClear">クリア</button>
+      <button class="ghost" id="edClear">クリア</button>
     </div>
     <div class="dictrow" id="edEditRow" style="display:none">
       <button id="edUp">↑</button>
@@ -437,7 +450,6 @@
       <button id="edDup">複製</button>
       <button id="edDel">削除</button>
     </div>
-    <button class="mbtn addBtn" id="edSave">保存</button>
   </div>
 </div>
 
@@ -456,16 +468,16 @@
     <div class="fb-scroll" id="prFbScroll"></div>
     <div class="pcol only-pa">
       <div class="statRow" id="paStats"></div>
-      <div class="dictrow"><button id="paReset">リセット</button></div>
+      <div class="dictrow"><button class="ghost" id="paReset">リセット</button></div>
     </div>
     <div class="pcol only-pb">
       <div class="prQ" id="prQ">—</div>
       <div class="prFbk" id="prFbk"></div>
       <div class="statRow" id="pbStats"></div>
       <div class="dictrow">
-        <button id="pbPass">パス</button>
+        <button class="ghost" id="pbPass">パス</button>
         <button id="pbBoard">指板</button>
-        <button id="pbReset">リセット</button>
+        <button class="ghost" id="pbReset">リセット</button>
       </div>
     </div>
     <div class="pcol only-pc">
@@ -483,8 +495,8 @@
       <div class="prFbk" id="rcSub"></div>
       <div class="prFbk" id="rcFbk"></div>
       <div class="dictrow">
-        <button id="rcStart">▶ スタート</button>
-        <button id="rcReset">リセット</button>
+        <button class="primary" id="rcStart">▶ スタート</button>
+        <button class="ghost" id="rcReset">リセット</button>
       </div>
       <button class="rcPad" id="rcPad">TAP</button>
     </div>
@@ -494,9 +506,9 @@
       <div class="etGrid" id="etGrid"></div>
       <div class="statRow" id="etStats"></div>
       <div class="dictrow">
-        <button id="etPlay">▶ 出題</button>
-        <button id="etPass">パス</button>
-        <button id="etReset">リセット</button>
+        <button class="primary" id="etPlay">▶ 出題</button>
+        <button class="ghost" id="etPass">パス</button>
+        <button class="ghost" id="etReset">リセット</button>
       </div>
     </div>
     <div class="pcol only-pe">
@@ -522,14 +534,14 @@
       <div class="prFbk" id="voFbk"></div>
       <div class="statRow" id="voStats"></div>
       <div class="dictrow">
-        <button id="voPlay">▶ 出題</button>
-        <button id="voPass">パス</button>
-        <button id="voReset">リセット</button>
+        <button class="primary" id="voPlay">▶ 出題</button>
+        <button class="ghost" id="voPass">パス</button>
+        <button class="ghost" id="voReset">リセット</button>
       </div>
     </div>
     <div class="hint" id="prHint"></div>
     <div class="controls only-mic">
-      <button class="main micbtn" id="prMicBtn" aria-label="マイク オン/オフ">
+      <button class="main micbtn primary" id="prMicBtn" aria-label="マイク オン/オフ">
         <svg class="ic ic-off" viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
         <svg class="ic ic-on" viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
       </button>
@@ -541,7 +553,7 @@
 <div class="sheet" id="typeSheet">
   <div class="sheetHead">
     <div class="ttl" id="sheetTitle">C</div>
-    <button id="sheetClose">閉じる</button>
+    <button class="ghost" id="sheetClose">閉じる</button>
   </div>
   <div class="sheetBody" id="sheetBody"></div>
 </div>
@@ -550,7 +562,7 @@
 <div class="sheet" id="scaleSheet">
   <div class="sheetHead">
     <div class="ttl" id="scaleSheetTitle">C メジャー</div>
-    <button id="scaleSheetClose">閉じる</button>
+    <button class="ghost" id="scaleSheetClose">閉じる</button>
   </div>
   <div class="sheetBody" id="scaleSheetBody"></div>
 </div>
@@ -558,9 +570,9 @@
 <!-- 本番用大画面ビュー -->
 <div class="sheet" id="liveSheet">
   <div class="sheetHead">
-    <button class="mbtn" id="livePlay">▶</button>
+    <button class="mbtn primary" id="livePlay">▶</button>
     <div class="ttl" id="liveTitle">スケッチ</div>
-    <button id="liveClose">閉じる</button>
+    <button class="ghost" id="liveClose">閉じる</button>
   </div>
   <div class="sheetBody" id="liveBody"></div>
 </div>
@@ -568,10 +580,15 @@
 <!-- テンポトレーナー設定シート -->
 <div class="sheet" id="trainSheet">
   <div class="sheetHead">
-    <div class="ttl">テンポトレーナー</div>
-    <button id="trainClose">閉じる</button>
+    <div class="ttl">メトロノーム設定</div>
+    <button class="ghost" id="trainClose">閉じる</button>
   </div>
   <div class="sheetBody">
+    <div class="catTitle">音量</div>
+    <div class="row">
+      <label class="vol">表<input type="range" id="volMain" min="0" max="100"></label>
+      <label class="vol">細<input type="range" id="volOff" min="0" max="100"></label>
+    </div>
     <div class="catTitle">自動加速(開始は現在のBPM)</div>
     <div class="dictrow" style="padding:0"><button id="trAccBtn" style="min-height:48px">オフ</button></div>
     <div class="trow"><span class="tlabel">目標BPM</span><button class="tstep" id="trTgtM">−</button><span class="tval" id="trTgtV">140</span><button class="tstep" id="trTgtP">+</button></div>
@@ -589,7 +606,7 @@
 <div class="sheet" id="memoPickSheet">
   <div class="sheetHead">
     <div class="ttl">追加先スケッチ</div>
-    <button id="memoPickClose">閉じる</button>
+    <button class="ghost" id="memoPickClose">閉じる</button>
   </div>
   <div class="sheetBody" id="memoPickBody"></div>
 </div>
@@ -1673,23 +1690,40 @@ let curRoot = 0, curType = "";
 let curVoicings = [];
 let vIdx = 0;
 let topSel = null;
+let topOpen = false;
+function renderTopBtn() {
+  document.getElementById("topBtn").classList.toggle("on", topSel !== null);
+  document.getElementById("topRow").style.display = topOpen ? "flex" : "none";
+}
 let chordMidis = [];
 
 const chordTitleEl = document.getElementById("chordTitle");
 const chordTonesEl = document.getElementById("chordTones");
 const vLabelEl = document.getElementById("vLabel");
 
-function fillSug(el, list) {
-  el.innerHTML = "";
-  list.forEach(sg => {
-    const nr = (curRoot + sg[0]) % 12;
-    const nt = sg[1];
-    const b = document.createElement("button");
-    b.className = "schip";
-    b.textContent = chordName(nr, nt);
-    b.addEventListener("click", () => showChord(nr, nt));
-    el.appendChild(b);
-  });
+function renderSugRow(sug) {
+  const row = document.getElementById("sugRow");
+  row.innerHTML = "";
+  const addLabel = (t) => {
+    const s = document.createElement("span");
+    s.className = "clabel";
+    s.textContent = t;
+    row.appendChild(s);
+  };
+  const addChips = (list) => {
+    list.forEach(sg => {
+      const nr = (curRoot + sg[0]) % 12;
+      const b = document.createElement("button");
+      b.className = "chip";
+      b.textContent = chordName(nr, sg[1]);
+      b.addEventListener("click", () => showChord(nr, sg[1]));
+      row.appendChild(b);
+    });
+  };
+  addLabel("前");
+  addChips(sug.p);
+  addLabel("次");
+  addChips(sug.n);
 }
 
 function showChord(r, t, addHist) {
@@ -1705,10 +1739,12 @@ function showChord(r, t, addHist) {
   chordTonesEl.textContent = tp.iv.map(iv => spellNote(r, iv[0], iv[1])).join("  ");
 
   topSel = null;
+  topOpen = false;
   curVoicings = genVoicings(r, tp, null);
   vIdx = 0;
   renderVoicing();
   renderTopRow(tp);
+  renderTopBtn();
 
   chordMidis = [];
   const indices = [];
@@ -1721,8 +1757,7 @@ function showChord(r, t, addHist) {
   lightKb2(indices, (i) => (i === r ? "R" : ""));
 
   const sug = SUGGEST[tp.fam] || { p: [], n: [] };
-  fillSug(document.getElementById("sugPrev"), sug.p);
-  fillSug(document.getElementById("sugNext"), sug.n);
+  renderSugRow(sug);
 
   const scRow = document.getElementById("chScales");
   scRow.innerHTML = '<span class="clabel">スケール</span>';
@@ -1769,7 +1804,12 @@ function setTopSel(pc) {
   vIdx = 0;
   renderVoicing();
   renderTopRow(tp);
+  renderTopBtn();
 }
+document.getElementById("topBtn").addEventListener("click", () => {
+  topOpen = !topOpen;
+  renderTopBtn();
+});
 document.getElementById("vPrev").addEventListener("click", () => {
   if (!curVoicings.length) return;
   vIdx = (vIdx - 1 + curVoicings.length) % curVoicings.length;
@@ -2565,7 +2605,9 @@ let liveOpen = false;
 let liveRowEls = [];
 const liveSheet = document.getElementById("liveSheet");
 function renderLivePlayBtn() {
-  document.getElementById("livePlay").textContent = skTimer !== null ? "■" : "▶";
+  const b = document.getElementById("livePlay");
+  b.textContent = skTimer !== null ? "■" : "▶";
+  b.classList.toggle("playing", skTimer !== null);
 }
 function renderLive() {
   document.getElementById("liveTitle").textContent = curSk.name;
