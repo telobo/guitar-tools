@@ -3010,6 +3010,7 @@ let prHeldPc = -1, prCandPc = -1, prCandCount = 0, prLastVoiceTime = 0;
 let paIn = 0, paOut = 0, paStreak = 0;
 let paBest = parseInt(store.get("gt.paBest", "0"), 10) || 0;
 let pbQSemi = -1, pbQDeg = 1;
+let pbGateT = 0;
 let pbCorrect = 0, pbTotal = 0, pbStreak = 0, pbLock = false, pbShowBoard = false;
 let pbBest = parseInt(store.get("gt.pbBest", "0"), 10) || 0;
 let prFlashTO = null;
@@ -3151,6 +3152,7 @@ async function nextQuestion() {
   prQEl.textContent = degLabel(pbQSemi, pbQDeg) + "度";
   await ensureAudio();
   playPluck(48 + curScaleRoot, audioCtx.currentTime + 0.03, 0.4);
+  pbGateT = audioCtx.currentTime + 1.15;
 }
 
 /* ---- 判定 ---- */
@@ -3170,6 +3172,7 @@ function onNoteEvent(pc) {
     renderPaStats();
   } else {
     if (pbLock || pbQSemi < 0) return;
+    if (audioCtx.currentTime < pbGateT) return;
     const target = (curScaleRoot + pbQSemi) % 12;
     pbTotal++;
     if (pc === target) {
