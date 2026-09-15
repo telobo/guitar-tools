@@ -269,6 +269,10 @@
     background: linear-gradient(to left, #000, rgba(0, 0, 0, 0));
     pointer-events: none;
   }
+
+  /* ---- 入力用拡大指板 ---- */
+  .dict-body.m-rev #fbScroll { display: none; }
+  .fb-scroll svg { touch-action: pan-x; }
 </style>
 </head>
 <body>
@@ -335,6 +339,7 @@
       <button id="segRev">逆引き</button>
     </div>
     <div class="fb-scroll" id="fbScroll"></div>
+    <div class="fb-scroll only-rev" id="revFbScroll"></div>
     <div class="dictrow only-chord">
       <button id="vPrev">◀</button>
       <div class="vlabel" id="vLabel">押さえ方 1/1</div>
@@ -1016,6 +1021,23 @@ function holdRepeat(el, fn, repeatMs) {
   el.addEventListener("click", e => e.preventDefault());
 }
 function holdButton(el, step) { holdRepeat(el, () => setBpm(bpm + step), 60); }
+function attachTap(svg, fn) {
+  let down = false, sx = 0, sy = 0;
+  svg.addEventListener("pointerdown", (e) => { down = true; sx = e.clientX; sy = e.clientY; });
+  svg.addEventListener("pointerup", (e) => {
+    if (!down) return;
+    down = false;
+    if (Math.abs(e.clientX - sx) > 12 || Math.abs(e.clientY - sy) > 12) return;
+    fn(e);
+  });
+  svg.addEventListener("pointercancel", () => { down = false; });
+}
+function fbTapXY(svg, e) {
+  const rect = svg.getBoundingClientRect();
+  if (!rect.width) return null;
+  const k = (FB.NUT + FB.FRETS * FB.FW + 8) / rect.width;
+  return { x: (e.clientX - rect.left) * k, y: (e.clientY - rect.top) * k };
+}
 holdButton(document.getElementById("minusBtn"), -1);
 holdButton(document.getElementById("plusBtn"), +1);
 
@@ -1564,10 +1586,11 @@ function svgEl(tag, attrs) {
   for (const k in attrs) el.setAttribute(k, attrs[k]);
   return el;
 }
-function createFretboard(container) {
+function createFretboard(container, scale) {
   const W = FB.NUT + FB.FRETS * FB.FW + 8;
   const H = 152;
-  const svg = svgEl("svg", { width: W, height: H, viewBox: "0 0 " + W + " " + H });
+  const k = scale || 1;
+  const svg = svgEl("svg", { width: Math.round(W * k), height: Math.round(H * k), viewBox: "0 0 " + W + " " + H });
   for (let f = 0; f <= FB.FRETS; f++) {
     const x = FB.NUT + f * FB.FW;
     svg.appendChild(svgEl("line", { x1: x, y1: FB.TOP, x2: x, y2: FB.TOP + 5 * FB.GAP, stroke: "#fff", "stroke-width": f === 0 ? 5 : 1 }));
@@ -1593,10 +1616,12 @@ function createFretboard(container) {
   container.appendChild(svg);
   return { svg: svg, dots: dots };
 }
+const FB_INPUT_SCALE = 1.7;
 const dictFb = createFretboard(document.getElementById("fbScroll"));
 const fbSvg = dictFb.svg;
 const fbDots = dictFb.dots;
-const memoFb = createFretboard(document.getElementById("mFbScroll"));
+const memoFb = createFretboard(document.getElementById("mFbScroll"), FB_INPUT_SCALE);
+const revFb = createFretboard(document.getElementById("revFbScroll"), FB_INPUT_SCALE);
 function stringY(s) { return FB.TOP + (5 - s) * FB.GAP; }
 function drawVoicing(v, rootPc) {
   fbDots.innerHTML = "";
@@ -2119,15 +2144,15 @@ function revMidis() {
   return arr;
 }
 function drawRevFret() {
-  fbDots.innerHTML = "";
+  revFb.dots.innerHTML = "";
   for (let s = 0; s < 6; s++) {
     const f = revStr[s];
     if (f === null) continue;
     const y = stringY(s);
     if (f === 0) {
-      fbDots.appendChild(svgEl("circle", { cx: 12, cy: y, r: 6, stroke: "#fff", fill: "none", "stroke-width": 1.6 }));
+      revFb.dots.appendChild(svgEl("circle", { cx: 12, cy: y, r: 6, stroke: "#fff", fill: "none", "stroke-width": 1.6 }));
     } else {
-      fbDots.appendChild(svgEl("circle", { cx: FB.NUT + (f - 0.5) * FB.FW, cy: y, r: 8, fill: "#fff" }));
+      revFb.dots.appendChild(svgEl("circle", { cx: FB.NUT + (f - 0.5) * FB.FW, cy: y, r: 8, fill: "#fff" }));
     }
   }
 }
@@ -2212,11 +2237,11 @@ document.getElementById("revClear").addEventListener("click", () => {
   revKeys.clear();
   renderRev();
 });
-fbSvg.addEventListener("click", (e) => {
+attachTap(revFb.svg, (e) => {
   if (dictMode !== "rev") return;
-  const rect = fbSvg.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
+  const p = fbTapXY(revFb.svg, e);
+  if (!p) return;
+  const x = p.x, y = p.y;
   if (y < FB.TOP - 12 || y > FB.TOP + 5 * FB.GAP + 12) return;
   let row = Math.round((y - FB.TOP) / FB.GAP);
   row = Math.max(0, Math.min(5, row));
@@ -2707,7 +2732,7 @@ function redrawEdit() {
     }
   }
   const sc = document.getElementById("mFbScroll");
-  if (minF !== 99 && minF > 9) sc.scrollLeft = FB.NUT + (minF - 2) * FB.FW;
+  if (minF !== 99 && minF > 9) sc.scrollLeft = (FB.NUT + (minF - 2) * FB.FW) * FB_INPUT_SCALE;
   renderEdCands();
 }
 function renderEdCands() {
@@ -2735,11 +2760,11 @@ function renderEdCands() {
     }
   }
 }
-memoFb.svg.addEventListener("click", (e) => {
+attachTap(memoFb.svg, (e) => {
   if (!pages.memo.classList.contains("active") || memoView !== "edit") return;
-  const rect = memoFb.svg.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
+  const p = fbTapXY(memoFb.svg, e);
+  if (!p) return;
+  const x = p.x, y = p.y;
   if (y < FB.TOP - 12 || y > FB.TOP + 5 * FB.GAP + 12) return;
   let row = Math.round((y - FB.TOP) / FB.GAP);
   row = Math.max(0, Math.min(5, row));
